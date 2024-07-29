@@ -11,8 +11,7 @@ phases:
   pre_build:
     commands:
       - echo Checking out the source code...
-      - echo Loading environment variables from .env file...
-      - source .env
+      - echo Loading environment variables
 
   build:
     commands:
