@@ -4,18 +4,22 @@ phases:
   install:
     commands:
       - echo Installing dependencies...
-      - curl -LJO https://github.com/mikefarah/yq/releases/download/v4.15.0/yq_linux_amd64
-      - chmod +x yq_linux_amd64
-      - mv yq_linux_amd64 /usr/local/bin/yq
+      - apt-get update
+      - apt-get install -y jq
+      - wget https://github.com/mikefarah/yq/releases/download/v4.14.2/yq_linux_amd64 -O /usr/local/bin/yq
+      - chmod +x /usr/local/bin/yq
 
   pre_build:
     commands:
-      - echo Checking out the source code...
-      - echo Loading environment variables
+      - echo Loading environment variables...
 
   build:
     commands:
-      - echo Updating AppSync resolvers...
+      - echo Updating schema...
       - bash scripts/update-schema.sh
+
+      - echo Updating request mapping templates...
       - bash scripts/update-request-mapping-template.sh
+
+      - echo Updating response mapping templates...
       - bash scripts/update-response-mapping-template.sh
