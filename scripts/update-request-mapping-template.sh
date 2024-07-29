@@ -4,8 +4,8 @@
 API_ID=$API_ID
 
 # Extract queries and mutations from the Appsyncupdate.yaml file
-QUERY_LIST=$(yq eval '.queries[]' src/Appsyncupdate.yaml)
-MUTATION_LIST=$(yq eval '.mutations[]' src/Appsyncupdate.yaml)
+QUERY_LIST=$(yq eval '.queries[]' src/Appsyncupdate.yml)
+MUTATION_LIST=$(yq eval '.mutations[]' src/Appsyncupdate.yml)
 
 # Update request mapping templates for Queries
 for query in $QUERY_LIST; do
