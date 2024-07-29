@@ -4,7 +4,7 @@
 DATA_SOURCE_NAME="LambdaDataSource"
 
 # Fetch queries from Appsyncupdate.yaml
-QUERY_LIST=$(yq e '.queries[]' src/Appsyncupdate.yaml)
+QUERY_LIST=$(yq e '.queries[]' src/Appsyncupdate.yml)
 
 # Update request mapping templates for Queries
 for query in $QUERY_LIST; do
@@ -18,7 +18,7 @@ for query in $QUERY_LIST; do
 done
 
 # Fetch mutations from Appsyncupdate.yaml
-MUTATION_LIST=$(yq e '.mutations[]' src/Appsyncupdate.yaml)
+MUTATION_LIST=$(yq e '.mutations[]' src/Appsyncupdate.yml)
 
 # Update request mapping templates for Mutations
 for mutation in $MUTATION_LIST; do
