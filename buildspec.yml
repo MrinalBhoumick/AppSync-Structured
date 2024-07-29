@@ -12,6 +12,8 @@ phases:
   pre_build:
     commands:
       - echo Loading environment variables...
+      - echo Printing directory structure...
+      - ls -R
 
   build:
     commands:
