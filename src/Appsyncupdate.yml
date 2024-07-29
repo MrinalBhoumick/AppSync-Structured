@@ -1,0 +1,12 @@
+queries:
+  - getBankAccountList
+  - getBankList
+  - getCTCTimeLine
+  # Add other queries here
+
+mutations:
+  - addBankAccountList
+  - addBankInfo
+  - addCTCTimeLine
+  - addCompany
+  # Add other mutations here

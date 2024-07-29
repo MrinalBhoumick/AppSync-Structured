@@ -1,0 +1,241 @@
+type AddBankInfoTableType {
+  address: String
+  branch_name: String
+  id: Int
+  ifsc: String
+  name: String
+  swift: String
+}
+
+type BankAccountListTableType {
+  account_no: String
+  bank_id: Int
+  beneficiary_name: String
+  id: Int
+  invoice_type: String
+}
+
+type BankListTableType {
+  address: String
+  branch_name: String
+  id: Int
+  ifsc: String
+  name: String
+  swift: String
+}
+
+type CTCTimeLineTableType {
+  ctc_id: Int
+  effective_from: AWSDateTime
+  per_hour_cost_amount: Float
+  variable_cost_amount: Float
+}
+
+type CompanyTableType {
+  address: String
+  bank_account_id: Int
+  financial_details: AWSJSON
+  id: Int
+  invoice_prefix: String
+  name: String
+  region_id: Int
+}
+
+type CostToCompanyTableType {
+  annual_performance_bonus_amount: Float
+  basic_amount: Float
+  children_education_allowance_amount: Float
+  contribution_of_employer_amount: Float
+  currency_type: String
+  effective_from: AWSDateTime
+  email: String
+  hra_amount: Float
+  id: Int
+  joining_bonus_amount: Float
+  medical_allowance_amount: Float
+  medical_insurance_amount: Float
+  other_benefits_amount: Float
+  per_hour_cost_amount: Float
+  qplc_bonus_amount: Float
+  relocation_bonus_amount: Float
+  retention_bonus_amount: Float
+  special_allowance_amount: Float
+  transport_allowance_amount: Float
+  user_serial_id: Int
+  variable_cost_amount: Float
+}
+
+type CreatedInvoiceTableType {
+  doc_items: AWSJSON
+  doc_metadata: AWSJSON
+  doc_pdf_url: String
+  id: Int
+}
+
+type CurrencyListTableType {
+  id: Int
+  group_id: Int
+  name: String
+}
+
+type CustomersTableType {
+  financial_details: AWSJSON
+  firm_id: Int
+  tax_applicable: Boolean
+}
+
+type ExchangeRatesTableType {
+  added_by: String
+  added_dt: AWSDateTime
+  currency_id: Int
+  edited_by: String
+  edited_dt: AWSDateTime
+  exchange_date: AWSDateTime
+  id: Int
+  rate: Float
+}
+
+type InvoiceDetailsTableType {
+  sub_company_id: Int
+  company_id: String
+  cost_center_id: String
+  created_at: AWSDateTime
+  created_by: String
+  currency_type: String
+  customer_id: String
+  draft: Boolean
+  due_date: AWSDateTime
+  duration_from: AWSDateTime
+  duration_to: AWSDateTime
+  exchange_currency_value: Float
+  pay_currency: String
+  gross_amount: Float
+  gross_outstanding_amount: Float
+  id: Int
+  invoice_date: AWSDateTime
+  invoice_memo: String
+  invoice_number: String
+  invoice_type: String
+  milestones_id: Int
+  net_amount: Float
+  s3_key: String
+  status: String
+  tax_breakup: AWSJSON
+  tax_input_rcm_amount: Float
+  tax_output_rcm_amount: Float
+  tds_amount: Float
+  to_currency: String
+  updated_at: AWSDateTime
+  updated_by: String
+}
+
+type InvoiceDetailsTableType_WithCount {
+  count: Int
+  countStatusInvoice: String
+  result: [InvoiceDetailsTableType]
+  totalCost: Float
+}
+
+type InvoiceItemDetailsTableType {
+  description: String
+  hsn_sac: String
+  id: Int
+  invoice_id: Int
+  item_amount: Float
+  item_category_id: Int
+  item_quantity: Int
+  tax_percent: Float
+  tax_type: String
+}
+
+input getBankAccountList_InputType {
+  where: getBankAccountList_Where_InputType
+}
+
+input getBankAccountList_Where_InputType {
+  account_no: TableStringFilterInput
+  bank_id: TableIntFilterInput
+  beneficiary_name: TableStringFilterInput
+  id: TableIntFilterInput
+  invoice_type: TableStringFilterInput
+}
+
+input getBankList_InputType {
+  where: getBankList_Where_InputType
+}
+
+input getBankList_Where_InputType {
+  address: TableStringFilterInput
+  branch_name: TableStringFilterInput
+  id: TableIntFilterInput
+  ifsc: TableStringFilterInput
+  name: TableStringFilterInput
+  swift: TableStringFilterInput
+}
+
+type Query {
+  # Bank Account List
+  getBankAccountList(input: getBankAccountList_InputType): [BankAccountListTableType]
+
+  # Bank List
+  getBankList(input: getBankList_InputType): [BankListTableType]
+}
+
+type Mutation {
+  addBankAccountList(input: AddBankAccountListInput): BankAccountListTableType
+  addBankInfo(input: AddBankInfoInput): AddBankInfoTableType
+  addCTCTimeLine(input: AddCTCTimeLineInput): CTCTimeLineTableType
+  addCompany(input: AddCompanyInput): CompanyTableType
+}
+
+input AddBankAccountListInput {
+  account_no: String
+  bank_id: Int
+  beneficiary_name: String
+  id: Int
+  invoice_type: String
+}
+
+input AddBankInfoInput {
+  address: String
+  branch_name: String
+  id: Int
+  ifsc: String
+  name: String
+  swift: String
+}
+
+input AddCTCTimeLineInput {
+  ctc_id: Int
+  effective_from: AWSDateTime
+  per_hour_cost_amount: Float
+  variable_cost_amount: Float
+}
+
+input AddCompanyInput {
+  address: String
+  bank_account_id: Int
+  financial_details: AWSJSON
+  id: Int
+  invoice_prefix: String
+  name: String
+  region_id: Int
+}
+
+input TableStringFilterInput {
+  eq: String
+  ne: String
+  contains: String
+  notContains: String
+  startsWith: String
+  endsWith: String
+}
+
+input TableIntFilterInput {
+  eq: Int
+  ne: Int
+  gt: Int
+  lt: Int
+  gte: Int
+  lte: Int
+}

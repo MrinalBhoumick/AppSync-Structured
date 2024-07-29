@@ -1,0 +1,28 @@
+Folder Structure --- 
+
+- src
+  - schema.graphql
+  - Queries
+    - Queries1
+      - schema.graphql
+      - request_mapping_template.yml
+      - response_mapping_template.yml
+    - Queries2
+      - schema.graphql
+      - request_mapping_template.yml
+      - response_mapping_template.yml
+  - Mutations
+    - Mutation1
+      - schema.graphql
+      - request_mapping_template.yml
+      - response_mapping_template.yml
+    - Mutation2
+      - schema.graphql
+      - request_mapping_template.yml
+      - response_mapping_template.yml
+  - Appsyncupdate.yaml
+- scripts
+  - update-schema.sh
+  - update-request-mapping-template.sh
+  - update-response-mapping-template.sh
+- SAM

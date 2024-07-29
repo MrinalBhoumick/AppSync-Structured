@@ -1,0 +1,24 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      bash: 5.2
+    commands:
+      - echo Installing dependencies...
+      - curl -LJO https://github.com/mikefarah/yq/releases/download/v4.15.0/yq_linux_amd64
+      - chmod +x yq_linux_amd64
+      - mv yq_linux_amd64 /usr/local/bin/yq
+
+  pre_build:
+    commands:
+      - echo Checking out the source code...
+      - echo Loading environment variables from .env file...
+      - source .env
+
+  build:
+    commands:
+      - echo Updating AppSync resolvers...
+      - bash scripts/update-schema.sh
+      - bash scripts/update-request-mapping-template.sh
+      - bash scripts/update-response-mapping-template.sh

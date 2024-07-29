@@ -1,0 +1,4 @@
+#set($result = $util.parseJson($context.result))
+$util.toJson({
+  "availableTaskIds": $result.availableTaskIds
+})
