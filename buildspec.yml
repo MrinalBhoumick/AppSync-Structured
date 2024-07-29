@@ -18,7 +18,7 @@ phases:
   build:
     commands:
       - echo Updating schema...
-      - bash scripts/update-schema.sh
+      # - bash scripts/update-schema.sh
 
       - echo Updating request mapping templates...
       - bash scripts/update-request-mapping-template.sh

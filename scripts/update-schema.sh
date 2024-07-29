@@ -1,35 +1,40 @@
 #!/bin/bash
 
-# Check if the file exists
-if [ ! -f src/Appsyncupdate.yml ]; then
-  echo "Error: src/Appsyncupdate.yml file not found"
-  exit 1
+function wait_for_schema_ready() {
+  local retry_count=0
+  local max_retries=10
+  local delay=30 
+
+  while [ $retry_count -lt $max_retries ]; do
+    local status=$(aws appsync get-graphql-api --api-id $API_ID --query 'graphqlApi.status' --output text)
+    
+    if [ "$status" == "ACTIVE" ]; then
+      echo "Schema is ready for updates."
+      return 0
+    fi
+
+    echo "Schema is not ready. Retrying in $delay seconds..."
+    sleep $delay
+    delay=$((delay * 2)) # Exponential backoff
+    retry_count=$((retry_count + 1))
+  done
+
+  echo "Failed to wait for schema readiness after $max_retries attempts."
+  return 1
+}
+
+# Update schema for Queries
+wait_for_schema_ready
+if [ $? -eq 0 ]; then
+  aws appsync start-schema-creation \
+    --api-id $API_ID \
+    --definition file://src/schema.graphql
 fi
 
-# Read the list of queries from the Appsyncupdate.yaml file
-QUERY_LIST=$(yq eval '.queries[]' src/Appsyncupdate.yml)
-
-# Update schema files for Queries
-for query in $QUERY_LIST; do
-  if [[ -d "src/Queries/$query" ]]; then
-    aws appsync start-schema-creation \
-      --api-id $API_ID \
-      --definition file://src/Queries/$query/schema.graphql
-  else
-    echo "Directory src/Queries/$query not found"
-  fi
-done
-
-# Read the list of mutations from the Appsyncupdate.yaml file
-MUTATION_LIST=$(yq eval '.mutations[]' src/Appsyncupdate.yml)
-
-# Update schema files for Mutations
-for mutation in $MUTATION_LIST; do
-  if [[ -d "src/Mutations/$mutation" ]]; then
-    aws appsync start-schema-creation \
-      --api-id $API_ID \
-      --definition file://src/Mutations/$mutation/schema.graphql
-  else
-    echo "Directory src/Mutations/$mutation not found"
-  fi
-done
+# Update schema for Mutations
+wait_for_schema_ready
+if [ $? -eq 0 ]; then
+  aws appsync start-schema-creation \
+    --api-id $API_ID \
+    --definition file://src/schema.graphql
+fi
