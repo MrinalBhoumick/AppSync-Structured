@@ -1,4 +1,1 @@
-#set($result = $util.parseJson($context.result))
-$util.toJson({
-  "availableTaskIds": $result.availableTaskIds
-})
+$util.toJson($context.result)
