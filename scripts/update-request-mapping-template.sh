@@ -4,10 +4,11 @@
 DATA_SOURCE_NAME="LambdaDataSource"
 
 # Fetch queries from Appsyncupdate.yaml
-QUERY_LIST=$(yq e '.queries[]' src/Appsyncupdate.yml)
+QUERY_LIST=$(yq e '.queries[]' src/Appsyncupdate.yaml)
 
 # Update request mapping templates for Queries
 for query in $QUERY_LIST; do
+  echo "Updating request mapping template for Query: $query"
   aws appsync update-resolver \
     --api-id $API_ID \
     --type-name Query \
@@ -18,10 +19,11 @@ for query in $QUERY_LIST; do
 done
 
 # Fetch mutations from Appsyncupdate.yaml
-MUTATION_LIST=$(yq e '.mutations[]' src/Appsyncupdate.yml)
+MUTATION_LIST=$(yq e '.mutations[]' src/Appsyncupdate.yaml)
 
 # Update request mapping templates for Mutations
 for mutation in $MUTATION_LIST; do
+  echo "Updating request mapping template for Mutation: $mutation"
   aws appsync update-resolver \
     --api-id $API_ID \
     --type-name Mutation \
