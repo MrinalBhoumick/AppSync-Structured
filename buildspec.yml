@@ -20,6 +20,9 @@ phases:
       - echo Updating schema...
       # - bash scripts/update-schema.sh
 
+      - echo Updating Lambda authorizer...
+      - bash scripts/update-lambda-authorizer.sh
+
       - echo Updating request mapping templates...
       - bash scripts/update-request-mapping-template.sh
 
