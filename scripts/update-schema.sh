@@ -1,32 +1,29 @@
 #!/bin/bash
 
-API_ID=$(yq e '.api_id' src/Appsyncupdate.yml)
+# Fetch the API details from the Appsyncupdate.yaml file
+API_ID=$(yq e '.api_id' src/Appsyncupdate.yaml)
+SCHEMA_FILE="src/schema.graphql"
 
-function wait_for_schema_ready() {
-  local retry_count=0
-  local max_retries=10
-  local delay=30 
+# Start schema creation
+response=$(aws appsync start-schema-creation \
+  --api-id $API_ID \
+  --definition file://$SCHEMA_FILE)
 
-  while [ $retry_count -lt $max_retries ]; do
-    local status=$(aws appsync get-graphql-api --api-id $API_ID --query 'graphqlApi.status' --output text)
-    
-    if [ "$status" == "ACTIVE" ]; then
-      echo "Schema is ready for updates."
-      return 0
-    fi
+echo "Schema creation started: $response"
 
-    echo "Schema is not ready. Retrying in $delay seconds..."
-    sleep $delay
-    delay=$((delay * 2)) # Exponential backoff
-    retry_count=$((retry_count + 1))
-  done
-
-  echo "Failed to wait for schema readiness after $max_retries attempts."
-  return 1
-}
-
-if [ $? -eq 0 ]; then
-  aws appsync start-schema-creation \
-    --api-id $API_ID \
-    --definition file://src/schema.graphql
-fi
+# Loop to check the status of schema creation
+while true; do
+  status=$(aws appsync get-schema-creation-status --api-id $API_ID | jq -r '.status')
+  echo "Current schema creation status: $status"
+  if [[ $status == "SUCCESS" ]]; then
+    echo "Schema creation completed successfully."
+    break
+  elif [[ $status == "FAILED" ]]; then
+    echo "Schema creation failed."
+    aws appsync get-schema-creation-status --api-id $API_ID
+    exit 1
+  else
+    echo "Schema creation is still processing. Waiting for 10 seconds..."
+    sleep 10
+  fi
+done
