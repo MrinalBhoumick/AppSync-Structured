@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Fetch the API details from the Appsyncupdate.yaml file
-API_ID=$(yq e '.api_id' src/Appsyncupdate.yaml)
+API_ID=$(yq e '.api_id' src/Appsyncupdate.yml)
 SCHEMA_FILE="src/schema.graphql"
 
 # Start schema creation
