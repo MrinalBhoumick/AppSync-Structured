@@ -23,16 +23,6 @@ function wait_for_schema_ready() {
   return 1
 }
 
-# Update schema for Queries
-wait_for_schema_ready
-if [ $? -eq 0 ]; then
-  aws appsync start-schema-creation \
-    --api-id $API_ID \
-    --definition file://src/schema.graphql
-fi
-
-# Update schema for Mutations
-wait_for_schema_ready
 if [ $? -eq 0 ]; then
   aws appsync start-schema-creation \
     --api-id $API_ID \

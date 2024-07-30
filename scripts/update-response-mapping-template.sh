@@ -1,18 +1,12 @@
 #!/bin/bash
 
-# Fetch the list of queries and mutations from the Appsyncupdate.yaml file
+# Fetch the list of queries and mutations from the Appsyncupdate.yml file
 QUERY_LIST=$(yq e '.queries[]' src/Appsyncupdate.yml)
 MUTATION_LIST=$(yq e '.mutations[]' src/Appsyncupdate.yml)
 
 # Common variables
+API_ID=$(yq e '.api_id' src/Appsyncupdate.yml)
 DATA_SOURCE_NAME="LambdaDataSource"
-
-# Update GraphQL API with AWS Lambda authorization
-aws appsync update-graphql-api \
-  --api-id $API_ID \
-  --name $API_NAME \
-  --authentication-type AWS_LAMBDA \
-  --lambda-authorizer-config authorizerUri="$LAMBDA_AUTHORIZER_ARN"
 
 # Update response mapping templates for Queries
 for query in $QUERY_LIST; do
