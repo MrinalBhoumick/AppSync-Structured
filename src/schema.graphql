@@ -1,24 +1,29 @@
 type AddBankInfoTableType {
-	address: String
-	branch_name: String
-	id: Int
-	ifsc: String
-	name: String
-	swift: String
+  address: String
+  branch_name: String
+  id: Int
+  ifsc: String
+  name: String
+  swift: String
 }
+
 input addBankInfo_InputType {
-	insert: addBankInfo_Insert_InputType!
+  insert: addBankInfo_Insert_InputType!
 }
 
 input addBankInfo_Insert_InputType {
-	address: String!
-	branch_name: String!
-	ifsc: String!
-	name: String!
-	swift: String
+  address: String!
+  branch_name: String!
+  ifsc: String!
+  name: String!
+  swift: String
 }
 
 type Mutation {
-	# Add Bank
-	addBankInfo(input: addBankInfo_InputType!): [AddBankInfoTableType]
+  # Add Bank
+  addBankInfo(input: addBankInfo_InputType!): [AddBankInfoTableType]
+}
+
+type Query {
+  _dummy: String
 }
