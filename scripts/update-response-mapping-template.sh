@@ -1,10 +1,12 @@
 #!/bin/bash
 
-# Data Source Name
-DATA_SOURCE_NAME="LambdaDataSource"
+# Fetch the list of queries and mutations from the Appsyncupdate.yaml file
+QUERY_LIST=$(yq e '.queries' src/Appsyncupdate.yml)
+MUTATION_LIST=$(yq e '.mutations' src/Appsyncupdate.yml)
 
-# Fetch queries from Appsyncupdate.yaml
-QUERY_LIST=$(yq e '.queries[]' src/Appsyncupdate.yml)
+# Common variables
+DATA_SOURCE_NAME="LambdaDataSource"
+LAMBDA_AUTHORIZER_CONFIG="authorizerUri=arn:aws:lambda:ap-south-1:992382729083:function:commercial_cost_center"
 
 # Update response mapping templates for Queries
 for query in $QUERY_LIST; do
@@ -12,12 +14,10 @@ for query in $QUERY_LIST; do
     --api-id $API_ID \
     --type-name Query \
     --field-name $query \
+    --data-source-name $DATA_SOURCE_NAME \
     --response-mapping-template file://src/Queries/$query/response_mapping_template.graphql \
-    --data-source-name $DATA_SOURCE_NAME
+    --authorization-config lambdaAuthorizerConfig={$LAMBDA_AUTHORIZER_CONFIG}
 done
-
-# Fetch mutations from Appsyncupdate.yaml
-MUTATION_LIST=$(yq e '.mutations[]' src/Appsyncupdate.yml)
 
 # Update response mapping templates for Mutations
 for mutation in $MUTATION_LIST; do
@@ -25,6 +25,7 @@ for mutation in $MUTATION_LIST; do
     --api-id $API_ID \
     --type-name Mutation \
     --field-name $mutation \
+    --data-source-name $DATA_SOURCE_NAME \
     --response-mapping-template file://src/Mutations/$mutation/response_mapping_template.graphql \
-    --data-source-name $DATA_SOURCE_NAME
+    --authorization-config lambdaAuthorizerConfig={$LAMBDA_AUTHORIZER_CONFIG}
 done
