@@ -1,5 +1,7 @@
 #!/bin/bash
 
+API_ID=$(yq e '.api_id' src/Appsyncupdate.yml)
+
 function wait_for_schema_ready() {
   local retry_count=0
   local max_retries=10
