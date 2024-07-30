@@ -20,7 +20,6 @@ input addBankInfo_Insert_InputType {
 }
 
 type Mutation {
-  # Add Bank
   addBankInfo(input: addBankInfo_InputType!): [AddBankInfoTableType]
 }
 
