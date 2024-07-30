@@ -8,7 +8,7 @@ queries:
   - getBankList
   - getCTCTimeLine
 
-mutations:
+  # mutations:
   - addBankAccountList
   - addBankInfo
   - addCTCTimeLine
