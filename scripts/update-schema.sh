@@ -4,24 +4,28 @@
 API_ID=$(yq e '.api_id' src/Appsyncupdate.yml)
 SCHEMA_FILE="src/schema.graphql"
 
-# Start schema creation
+# Read and base64 encode the schema file content
+SCHEMA_BASE64=$(base64 -w 0 < "$SCHEMA_FILE")
+
+# Start schema creation with base64 encoded schema
 response=$(aws appsync start-schema-creation \
-  --api-id $API_ID \
-  --definition file://$SCHEMA_FILE)
+  --api-id "$API_ID" \
+  --definition "$SCHEMA_BASE64")
 
 echo "Schema creation started: $response"
 
-# Loop to check the status of schema creation
+# Check status of schema creation
 while true; do
-  status=$(aws appsync get-schema-creation-status --api-id $API_ID | jq -r '.status')
-  echo "Current schema creation status: $status"
-  if [[ $status == "SUCCESS" ]]; then
-    echo "Schema creation completed successfully."
+  status=$(aws appsync get-schema-creation-status --api-id "$API_ID")
+  echo "Current schema creation status: $(echo $status | jq -r '.status')"
+  
+  if [[ "$(echo $status | jq -r '.status')" == "SUCCESS" ]]; then
+    echo "Schema creation successful."
     break
-  elif [[ $status == "FAILED" ]]; then
+  elif [[ "$(echo $status | jq -r '.status')" == "FAILED" ]]; then
     echo "Schema creation failed."
-    aws appsync get-schema-creation-status --api-id $API_ID
-    exit 1
+    echo "$status" | jq -r '.details'
+    break
   else
     echo "Schema creation is still processing. Waiting for 10 seconds..."
     sleep 10
