@@ -2,7 +2,6 @@ type AddBankInfoTableType {
   address: String
   branch_name: String
   id: Int
-  ifsc: String
   name: String
   swift: String
 }
@@ -14,7 +13,6 @@ input addBankInfo_InputType {
 input addBankInfo_Insert_InputType {
   address: String!
   branch_name: String!
-  ifsc: String!
   name: String!
   swift: String
 }
