@@ -6,7 +6,7 @@ MUTATION_LIST=$(yq e '.mutations' src/Appsyncupdate.yml)
 
 # Common variables
 DATA_SOURCE_NAME="LambdaDataSource"
-LAMBDA_AUTHORIZER_CONFIG="authorizerUri=arn:aws:lambda:ap-south-1:992382729083:function:commercial_cost_center"
+LAMBDA_AUTHORIZER_CONFIG="authorizerUri=arn:aws:lambda:ap-south-1:992382729083:function:appsync-lambda-authorizer"
 
 # Update request mapping templates for Queries
 for query in $QUERY_LIST; do
