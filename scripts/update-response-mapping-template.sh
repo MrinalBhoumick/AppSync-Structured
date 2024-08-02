@@ -14,14 +14,14 @@ if [ -z "$API_NAME" ]; then
   exit 1
 fi
 
-# Fetch queries and mutations from the YAML files
+# Fetch queries from the YAML file
 QUERIES=($(yq e '.queries[]' src/Appsyncupdatequeries.yml))
-MUTATIONS=($(yq e '.mutations[]' src/Appsyncupdatemutations.yml))
 
 # Update response mapping templates for queries
 for query in "${QUERIES[@]}"; do
   echo "Updating response mapping template for query: $query"
-  if [ ! -f "src/Queries/$query/response_mapping_template.yml" ]; then
+  TEMPLATE_PATH="src/Queries/$query/response_mapping_template.yml"
+  if [ ! -f "$TEMPLATE_PATH" ]; then
     echo "Response mapping template file not found for query: $query"
     continue
   fi
@@ -29,13 +29,15 @@ for query in "${QUERIES[@]}"; do
     --api-id $API_ID \
     --type-name Query \
     --field-name $query \
-    --response-mapping-template file://src/Queries/$query/response_mapping_template.yml
+    --response-mapping-template file://$TEMPLATE_PATH
+    --data-source LambdaDataSource
 done
 
 # Update response mapping templates for mutations
 for mutation in "${MUTATIONS[@]}"; do
   echo "Updating response mapping template for mutation: $mutation"
-  if [ ! -f "src/Mutations/$mutation/response_mapping_template.yml" ]; then
+  TEMPLATE_PATH="src/Mutations/$mutation/response_mapping_template.yml"
+  if [ ! -f "$TEMPLATE_PATH" ]; then
     echo "Response mapping template file not found for mutation: $mutation"
     continue
   fi
@@ -43,5 +45,6 @@ for mutation in "${MUTATIONS[@]}"; do
     --api-id $API_ID \
     --type-name Mutation \
     --field-name $mutation \
-    --response-mapping-template file://src/Mutations/$mutation/response_mapping_template.yml
+    --response-mapping-template file://$TEMPLATE_PATH
+    --data-source LambdaDataSource
 done
