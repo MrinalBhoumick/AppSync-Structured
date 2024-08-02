@@ -7,9 +7,3 @@ queries:
   - getBankAccountList
   - getBankList
   - getCTCTimeLine
-
-mutations:
-  - addBankAccountList
-  - addBankInfo
-  - addCTCTimeLine
-  - addCompany

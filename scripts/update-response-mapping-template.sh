@@ -1,29 +1,27 @@
 #!/bin/bash
 
-# Fetch the list of queries and mutations from the Appsyncupdate.yml file
-QUERY_LIST=$(yq e '.queries[]' src/Appsyncupdate.yml)
-MUTATION_LIST=$(yq e '.mutations[]' src/Appsyncupdate.yml)
+# Load queries and mutations from the YAML files
+QUERIES=$(yq e '.queries[]' src/Appsyncupdatequeries.yml)
+MUTATIONS=$(yq e '.mutations[]' src/Appsyncupdatemutations.yml)
 
-# Common variables
-API_ID=$(yq e '.api_id' src/Appsyncupdate.yml)
-DATA_SOURCE_NAME="LambdaDataSource"
-
-# Update response mapping templates for Queries
-for query in $QUERY_LIST; do
+# Update response mapping templates for queries
+for query in $QUERIES; do
+  echo "Updating response mapping template for query: $query"
   aws appsync update-resolver \
     --api-id $API_ID \
-    --type-name Query \
+    --type-name $query \
     --field-name $query \
-    --data-source-name $DATA_SOURCE_NAME \
-    --response-mapping-template file://src/Queries/$query/response_mapping_template.graphql
+    --data-source-name LambdaDataSource \
+    --response-mapping-template file://src/Queries/$query/response_mapping_template.yml
 done
 
-# Update response mapping templates for Mutations
-for mutation in $MUTATION_LIST; do
+# Update response mapping templates for mutations
+for mutation in $MUTATIONS; do
+  echo "Updating response mapping template for mutation: $mutation"
   aws appsync update-resolver \
     --api-id $API_ID \
-    --type-name Mutation \
+    --type-name $mutation \
     --field-name $mutation \
-    --data-source-name $DATA_SOURCE_NAME \
-    --response-mapping-template file://src/Mutations/$mutation/response_mapping_template.graphql
+    --data-source-name LambdaDataSource \
+    --response-mapping-template file://src/Mutations/$mutation/response_mapping_template.yml
 done

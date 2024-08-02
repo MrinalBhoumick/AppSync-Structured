@@ -17,14 +17,19 @@ phases:
 
   build:
     commands:
-      # - echo Updating schema...
-      # - bash scripts/update-schema.sh
+      - echo Creating AppSync API if it does not exist...
+      - bash scripts/create-api.sh
 
-      - echo Updating Lambda authorizer...
-      - bash scripts/update-lambda-authorizer.sh
+      - echo Updating schema...
+      - bash scripts/update-schema.sh
 
       - echo Updating request mapping templates...
       - bash scripts/update-request-mapping-template.sh
 
       - echo Updating response mapping templates...
       - bash scripts/update-response-mapping-template.sh
+
+artifacts:
+  files:
+    - src/Appsyncupdatemutations.yml
+    - src/Appsyncupdatequeries.yml
