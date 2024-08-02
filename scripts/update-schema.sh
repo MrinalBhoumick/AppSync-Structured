@@ -2,14 +2,24 @@
 
 # Load API details from the YAML file
 API_ID=$(yq e '.api_id' src/Appsyncupdatemutations.yml)
+API_NAME=$(yq e '.api_name' src/Appsyncupdatemutations.yml)
 
-if [ "$API_ID" == "None" ]; then
+if [ "$API_ID" == "None" ] || [ -z "$API_ID" ]; then
   echo "API ID not found. Please ensure the API exists."
   exit 1
 fi
 
+if [ -z "$API_NAME" ]; then
+  echo "API Name not found. Please ensure it is defined in the YAML file."
+  exit 1
+fi
+
+# Base64 encode the schema file
+SCHEMA_BASE64=$(base64 -w 0 src/schema.graphql)
+
 # Update the schema in AppSync
-aws appsync start-schema-creation --api-id $API_ID --definition file://src/schema.graphql
+echo "Starting schema creation..."
+aws appsync start-schema-creation --api-id $API_ID --definition "$SCHEMA_BASE64"
 
 # Poll the schema creation status until it's done
 while true; do
