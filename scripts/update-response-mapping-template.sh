@@ -20,7 +20,7 @@ QUERIES=($(yq e '.queries[]' src/Appsyncupdatequeries.yml))
 # Update response mapping templates for queries
 for query in "${QUERIES[@]}"; do
   echo "Updating response mapping template for query: $query"
-  TEMPLATE_PATH="src/Queries/$query/response_mapping_template.yml"
+  TEMPLATE_PATH="src/Queries/$query/response_mapping_template.graphql"
   if [ ! -f "$TEMPLATE_PATH" ]; then
     echo "Response mapping template file not found for query: $query"
     continue
@@ -36,7 +36,7 @@ done
 # Update response mapping templates for mutations
 for mutation in "${MUTATIONS[@]}"; do
   echo "Updating response mapping template for mutation: $mutation"
-  TEMPLATE_PATH="src/Mutations/$mutation/response_mapping_template.yml"
+  TEMPLATE_PATH="src/Mutations/$mutation/response_mapping_template.graphql"
   if [ ! -f "$TEMPLATE_PATH" ]; then
     echo "Response mapping template file not found for mutation: $mutation"
     continue
