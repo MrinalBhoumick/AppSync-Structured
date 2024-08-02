@@ -8,6 +8,8 @@ LAMBDA_AUTHORIZER_ARN=$(yq e '.lambda_authorizer_arn' src/Appsyncupdatemutations
 API_ID=$(aws appsync list-graphql-apis --query "graphqlApis[?name=='$API_NAME'].apiId | [0]" --output text)
 
 if [ "$API_ID" == "None" ]; then
+  echo "Creating new AppSync API with name: $API_NAME"
+
   # Create a new AppSync API
   API_ID=$(aws appsync create-graphql-api \
     --name $API_NAME \

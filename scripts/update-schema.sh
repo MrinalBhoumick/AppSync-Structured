@@ -3,6 +3,11 @@
 # Load API details from the YAML file
 API_ID=$(yq e '.api_id' src/Appsyncupdatemutations.yml)
 
+if [ "$API_ID" == "None" ]; then
+  echo "API ID not found. Please ensure the API exists."
+  exit 1
+fi
+
 # Update the schema in AppSync
 aws appsync start-schema-creation --api-id $API_ID --definition file://src/schema.graphql
 
