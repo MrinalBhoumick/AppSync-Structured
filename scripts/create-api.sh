@@ -1,34 +1,24 @@
 #!/bin/bash
 
-# Load API details from the Appsyncupdatemutations.yml file
+# Load API details from the YAML file
 API_NAME=$(yq e '.api_name' src/Appsyncupdatemutations.yml)
-AUTH_TYPE=$(yq e '.auth_type' src/Appsyncupdatemutations.yml)
 LAMBDA_AUTHORIZER_ARN=$(yq e '.lambda_authorizer_arn' src/Appsyncupdatemutations.yml)
 
 # Check if the API already exists
-EXISTING_API_ID=$(aws appsync list-graphql-apis --query "graphqlApis[?name=='$API_NAME'].apiId" --output text)
+API_ID=$(aws appsync list-graphql-apis --query "graphqlApis[?name=='$API_NAME'].apiId | [0]" --output text)
 
-if [ -z "$EXISTING_API_ID" ]; then
-  echo "Creating new AppSync API: $API_NAME"
-  
-  # Create the new AppSync API
-  CREATE_API_RESPONSE=$(aws appsync create-graphql-api \
+if [ "$API_ID" == "None" ]; then
+  # Create a new AppSync API
+  API_ID=$(aws appsync create-graphql-api \
     --name $API_NAME \
-    --authentication-type $AUTH_TYPE \
-    --lambda-authorizer-config authorizerUri=$LAMBDA_AUTHORIZER_ARN)
-
-  # Extract the API ID
-  API_ID=$(echo $CREATE_API_RESPONSE | jq -r '.graphqlApi.apiId')
-
-  echo "AppSync API created with ID: $API_ID"
-
-  # Save the API ID to the YAML files for future use
+    --authentication-type AWS_LAMBDA \
+    --lambda-authorizer-config authorizerUri=$LAMBDA_AUTHORIZER_ARN \
+    --query 'graphqlApi.apiId' --output text)
+  
+  echo "Created new AppSync API with ID: $API_ID"
+  
+  # Update the YAML file with the new API ID
   yq e -i ".api_id = \"$API_ID\"" src/Appsyncupdatemutations.yml
-  yq e -i ".api_id = \"$API_ID\"" src/Appsyncupdatequeries.yml
 else
-  echo "AppSync API $API_NAME already exists with ID: $EXISTING_API_ID"
-  API_ID=$EXISTING_API_ID
+  echo "AppSync API already exists with ID: $API_ID"
 fi
-
-# Pass the API_ID as an environment variable for subsequent scripts
-export API_ID

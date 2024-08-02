@@ -2,7 +2,6 @@ api_id: sa43vydym5c3bh752p7fbdxchi
 api_name: buildtwin-commercial-module-prod
 lambda_authorizer_arn: arn:aws:lambda:ap-south-1:992382729083:function:appsync-lambda-authorizer
 auth_type: AWS_LAMBDA
-
 mutations:
   - addBankAccountList
   - addBankInfo
