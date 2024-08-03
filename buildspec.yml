@@ -23,11 +23,17 @@ phases:
       - echo Updating schema...
       - bash scripts/update-schema.sh
 
+      - echo Creating or updating the data source...
+      - bash scripts/create-update-datasource.sh
+
       - echo Updating request mapping templates...
       - bash scripts/update-request-mapping-template.sh
 
       - echo Updating response mapping templates...
       - bash scripts/update-response-mapping-template.sh
+
+      - echo Updating Lambda authorizer...
+      - bash scripts/update-lambda-authorizer.sh
 
 artifacts:
   files:

@@ -1,24 +1,12 @@
 #!/bin/bash
 
-# Load API details from the YAML file
+# Load API details from the YAML files
 API_ID=$(yq e '.api_id' src/Appsyncupdatequeries.yml)
-API_NAME=$(yq e '.api_name' src/Appsyncupdatequeries.yml)
-DATA_SOURCE=$(yq e '.data_source' src/Appsyncupdatequeries.yml)  # Add this line to fetch the data source name
+LAMBDA_FUNCTION_ARN=$(yq e '.lambda_function_arn' src/Appsyncupdatequeries.yml)
+DATA_SOURCE="LambdaDataSource"  # Data source name
 
-if [ -z "$API_ID" ]; then
-  echo "API ID not found. Please ensure the API exists."
-  exit 1
-fi
-
-if [ -z "$API_NAME" ]; then
-  echo "API Name not found. Please ensure it is defined in the YAML file."
-  exit 1
-fi
-
-if [ -z "$DATA_SOURCE" ]; then
-  echo "Data source not found. Please ensure it is defined in the YAML file."
-  exit 1
-fi
+# Ensure data source exists
+bash scripts/create-update-data-source.sh
 
 # Fetch queries from the YAML file
 QUERIES=($(yq e '.queries[]' src/Appsyncupdatequeries.yml))
@@ -28,7 +16,7 @@ for query in "${QUERIES[@]}"; do
   echo "Updating request mapping template for query: $query"
   TEMPLATE_PATH="src/Queries/$query/request_mapping_template.graphql"
   if [ ! -f "$TEMPLATE_PATH" ]; then
-    echo "Request mapping template file not found for query: $query"
+    echo "Request mapping template file not found for query: $query at $TEMPLATE_PATH"
     continue
   fi
   aws appsync update-resolver \
@@ -36,7 +24,7 @@ for query in "${QUERIES[@]}"; do
     --type-name Query \
     --field-name $query \
     --request-mapping-template file://$TEMPLATE_PATH \
-    --data-source $DATA_SOURCE  # Use the correct data source name
+    --data-source $DATA_SOURCE
 done
 
 # Fetch mutations from the YAML file
@@ -47,7 +35,7 @@ for mutation in "${MUTATIONS[@]}"; do
   echo "Updating request mapping template for mutation: $mutation"
   TEMPLATE_PATH="src/Mutations/$mutation/request_mapping_template.graphql"
   if [ ! -f "$TEMPLATE_PATH" ]; then
-    echo "Request mapping template file not found for mutation: $mutation"
+    echo "Request mapping template file not found for mutation: $mutation at $TEMPLATE_PATH"
     continue
   fi
   aws appsync update-resolver \
@@ -55,5 +43,5 @@ for mutation in "${MUTATIONS[@]}"; do
     --type-name Mutation \
     --field-name $mutation \
     --request-mapping-template file://$TEMPLATE_PATH \
-    --data-source $DATA_SOURCE  # Use the correct data source name
+    --data-source $DATA_SOURCE
 done
