@@ -3,7 +3,7 @@
 # Load API details from the YAML files
 API_ID=$(yq e '.api_id' src/Appsyncupdatequeries.yml)
 LAMBDA_FUNCTION_ARN=$(yq e '.lambda_function_arn' src/Appsyncupdatequeries.yml)
-DATA_SOURCE="LambdaDataSource"  # Data source name
+DATA_SOURCE="LambdaDataSource" 
 
 # Ensure data source exists
 bash scripts/create-update-data-source.sh
@@ -20,18 +20,29 @@ for query in "${QUERIES[@]}"; do
     echo "Request mapping template file not found for query: $query at $TEMPLATE_PATH"
     continue
   fi
-  if [ ! -f "$RESPONSE_TEMPLATE_PATH" ]; then
-    echo "Response mapping template file not found for query: $query at $RESPONSE_TEMPLATE_PATH"
-    continue
-  fi
-  aws appsync update-resolver \
+  aws appsync get-resolver \
     --api-id $API_ID \
     --type-name Query \
-    --field-name $query \
-    --request-mapping-template file://$TEMPLATE_PATH \
-    --response-mapping-template file://$RESPONSE_TEMPLATE_PATH \
-    --data-source-name $DATA_SOURCE \
-    --kind UNIT
+    --field-name $query > /dev/null 2>&1
+  if [ $? -eq 0 ]; then
+    aws appsync update-resolver \
+      --api-id $API_ID \
+      --type-name Query \
+      --field-name $query \
+      --request-mapping-template file://$TEMPLATE_PATH \
+      --response-mapping-template file://$RESPONSE_TEMPLATE_PATH \
+      --data-source-name $DATA_SOURCE \
+      --kind UNIT
+  else
+    aws appsync create-resolver \
+      --api-id $API_ID \
+      --type-name Query \
+      --field-name $query \
+      --request-mapping-template file://$TEMPLATE_PATH \
+      --response-mapping-template file://$RESPONSE_TEMPLATE_PATH \
+      --data-source-name $DATA_SOURCE \
+      --kind UNIT
+  fi
 done
 
 # Fetch mutations from the YAML file
@@ -46,16 +57,27 @@ for mutation in "${MUTATIONS[@]}"; do
     echo "Request mapping template file not found for mutation: $mutation at $TEMPLATE_PATH"
     continue
   fi
-  if [ ! -f "$RESPONSE_TEMPLATE_PATH" ]; then
-    echo "Response mapping template file not found for mutation: $mutation at $RESPONSE_TEMPLATE_PATH"
-    continue
-  fi
-  aws appsync update-resolver \
+  aws appsync get-resolver \
     --api-id $API_ID \
     --type-name Mutation \
-    --field-name $mutation \
-    --request-mapping-template file://$TEMPLATE_PATH \
-    --response-mapping-template file://$RESPONSE_TEMPLATE_PATH \
-    --data-source-name $DATA_SOURCE \
-    --kind UNIT
+    --field-name $mutation > /dev/null 2>&1
+  if [ $? -eq 0 ]; then
+    aws appsync update-resolver \
+      --api-id $API_ID \
+      --type-name Mutation \
+      --field-name $mutation \
+      --request-mapping-template file://$TEMPLATE_PATH \
+      --response-mapping-template file://$RESPONSE_TEMPLATE_PATH \
+      --data-source-name $DATA_SOURCE \
+      --kind UNIT
+  else
+    aws appsync create-resolver \
+      --api-id $API_ID \
+      --type-name Mutation \
+      --field-name $mutation \
+      --request-mapping-template file://$TEMPLATE_PATH \
+      --response-mapping-template file://$RESPONSE_TEMPLATE_PATH \
+      --data-source-name $DATA_SOURCE \
+      --kind UNIT
+  fi
 done
