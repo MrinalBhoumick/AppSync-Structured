@@ -23,7 +23,7 @@ if [ "$DATA_SOURCE_EXISTS" -eq "0" ]; then
     --name $DATA_SOURCE_NAME \
     --description "Lambda data source" \
     --type AWS_LAMBDA \
-    --lambda-config functionArn=$LAMBDA_FUNCTION_ARN \
+    --lambda-config lambdaFunctionArn=$LAMBDA_FUNCTION_ARN \
     --service-role-arn $ROLE_ARN
 else
   echo "Data source $DATA_SOURCE_NAME already exists. Updating..."
@@ -32,6 +32,6 @@ else
     --name $DATA_SOURCE_NAME \
     --description "Lambda data source" \
     --type AWS_LAMBDA \
-    --lambda-config functionArn=$LAMBDA_FUNCTION_ARN \
+    --lambda-config lambdaFunctionArn=$LAMBDA_FUNCTION_ARN \
     --service-role-arn $ROLE_ARN
 fi
