@@ -24,7 +24,8 @@ for query in "${QUERIES[@]}"; do
     --type-name Query \
     --field-name $query \
     --response-mapping-template file://$TEMPLATE_PATH \
-    --data-source $DATA_SOURCE
+    --data-source-name $DATA_SOURCE \
+    --kind UNIT
 done
 
 # Fetch mutations from the YAML file
@@ -43,5 +44,6 @@ for mutation in "${MUTATIONS[@]}"; do
     --type-name Mutation \
     --field-name $mutation \
     --response-mapping-template file://$TEMPLATE_PATH \
-    --data-source $DATA_SOURCE
+    --data-source-name $DATA_SOURCE \
+    --kind UNIT
 done

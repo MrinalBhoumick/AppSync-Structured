@@ -15,8 +15,13 @@ QUERIES=($(yq e '.queries[]' src/Appsyncupdatequeries.yml))
 for query in "${QUERIES[@]}"; do
   echo "Updating request mapping template for query: $query"
   TEMPLATE_PATH="src/Queries/$query/request_mapping_template.graphql"
+  RESPONSE_TEMPLATE_PATH="src/Queries/$query/response_mapping_template.graphql"
   if [ ! -f "$TEMPLATE_PATH" ]; then
     echo "Request mapping template file not found for query: $query at $TEMPLATE_PATH"
+    continue
+  fi
+  if [ ! -f "$RESPONSE_TEMPLATE_PATH" ]; then
+    echo "Response mapping template file not found for query: $query at $RESPONSE_TEMPLATE_PATH"
     continue
   fi
   aws appsync update-resolver \
@@ -24,7 +29,9 @@ for query in "${QUERIES[@]}"; do
     --type-name Query \
     --field-name $query \
     --request-mapping-template file://$TEMPLATE_PATH \
-    --data-source $DATA_SOURCE
+    --response-mapping-template file://$RESPONSE_TEMPLATE_PATH \
+    --data-source-name $DATA_SOURCE \
+    --kind UNIT
 done
 
 # Fetch mutations from the YAML file
@@ -34,8 +41,13 @@ MUTATIONS=($(yq e '.mutations[]' src/Appsyncupdatemutations.yml))
 for mutation in "${MUTATIONS[@]}"; do
   echo "Updating request mapping template for mutation: $mutation"
   TEMPLATE_PATH="src/Mutations/$mutation/request_mapping_template.graphql"
+  RESPONSE_TEMPLATE_PATH="src/Mutations/$mutation/response_mapping_template.graphql"
   if [ ! -f "$TEMPLATE_PATH" ]; then
     echo "Request mapping template file not found for mutation: $mutation at $TEMPLATE_PATH"
+    continue
+  fi
+  if [ ! -f "$RESPONSE_TEMPLATE_PATH" ]; then
+    echo "Response mapping template file not found for mutation: $mutation at $RESPONSE_TEMPLATE_PATH"
     continue
   fi
   aws appsync update-resolver \
@@ -43,5 +55,7 @@ for mutation in "${MUTATIONS[@]}"; do
     --type-name Mutation \
     --field-name $mutation \
     --request-mapping-template file://$TEMPLATE_PATH \
-    --data-source $DATA_SOURCE
+    --response-mapping-template file://$RESPONSE_TEMPLATE_PATH \
+    --data-source-name $DATA_SOURCE \
+    --kind UNIT
 done
