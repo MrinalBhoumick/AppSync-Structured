@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # Fetch the API details from the Appsyncupdatequeries.yml file
-API_ID=$(yq e '.api_id' src/Appsyncupdatequeries.yml)
-API_NAME=$(yq e '.api_name' src/Appsyncupdatequeries.yml)
-LAMBDA_AUTHORIZER_ARN=$(yq e '.lambda_authorizer_arn' src/Appsyncupdatequeries.yml)
+API_ID=$(yq e '.api_id' src/update-appsync.yml)
+API_NAME=$(yq e '.api_name' src/update-appsync.yml)
+LAMBDA_AUTHORIZER_ARN=$(yq e '.lambda_authorizer_arn' src/update-appsync.yml)
 
 # Update GraphQL API with AWS Lambda authorization
 aws appsync update-graphql-api \

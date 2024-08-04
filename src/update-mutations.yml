@@ -1,0 +1,5 @@
+mutations:
+  - addBankAccountList
+  - addBankInfo
+  - addCTCTimeLine
+  - addCompany

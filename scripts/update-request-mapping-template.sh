@@ -1,15 +1,15 @@
 #!/bin/bash
 
 # Load API details from the YAML files
-API_ID=$(yq e '.api_id' src/Appsyncupdatequeries.yml)
-LAMBDA_FUNCTION_ARN=$(yq e '.lambda_function_arn' src/Appsyncupdatequeries.yml)
+API_ID=$(yq e '.api_id' src/update-appsync.yml)
+LAMBDA_FUNCTION_ARN=$(yq e '.lambda_function_arn' src/update-appsync.yml)
 DATA_SOURCE="LambdaDataSource" 
 
 # Ensure data source exists
 bash scripts/create-update-data-source.sh
 
 # Fetch queries from the YAML file
-QUERIES=($(yq e '.queries[]' src/Appsyncupdatequeries.yml))
+QUERIES=($(yq e '.queries[]' src/update-queries.yml))
 
 # Update request mapping templates for queries
 for query in "${QUERIES[@]}"; do
@@ -46,7 +46,7 @@ for query in "${QUERIES[@]}"; do
 done
 
 # Fetch mutations from the YAML file
-MUTATIONS=($(yq e '.mutations[]' src/Appsyncupdatemutations.yml))
+MUTATIONS=($(yq e '.mutations[]' src/update-mutations.yml))
 
 # Update request mapping templates for mutations
 for mutation in "${MUTATIONS[@]}"; do

@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # Load API details from the YAML file
-API_NAME=$(yq e '.api_name' src/Appsyncupdatemutations.yml)
-LAMBDA_AUTHORIZER_ARN=$(yq e '.lambda_authorizer_arn' src/Appsyncupdatemutations.yml)
+API_NAME=$(yq e '.api_name' src/update-appsync.yml)
+LAMBDA_AUTHORIZER_ARN=$(yq e '.lambda_authorizer_arn' src/update-appsync.yml)
 
 # Check if the API already exists
 API_ID=$(aws appsync list-graphql-apis --query "graphqlApis[?name=='$API_NAME'].apiId | [0]" --output text)

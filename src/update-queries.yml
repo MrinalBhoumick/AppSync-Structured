@@ -1,0 +1,4 @@
+queries:
+  - getBankAccountList
+  - getBankList
+  - getCTCTimeLine
