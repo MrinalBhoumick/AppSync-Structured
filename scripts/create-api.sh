@@ -20,7 +20,7 @@ if [ "$API_ID" == "None" ]; then
   echo "Created new AppSync API with ID: $API_ID"
   
   # Update the YAML file with the new API ID
-  yq e -i ".api_id = \"$API_ID\"" src/Appsyncupdatemutations.yml
+  yq e -i ".api_id = \"$API_ID\"" src/update-appsync.yml
 else
   echo "AppSync API already exists with ID: $API_ID"
 fi
