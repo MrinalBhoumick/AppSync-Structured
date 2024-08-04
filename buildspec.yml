@@ -37,5 +37,6 @@ phases:
 
 artifacts:
   files:
-    - src/Appsyncupdatemutations.yml
-    - src/Appsyncupdatequeries.yml
+    - src/update-appsync.yml
+    - src/update-queries.yml
+    - src/update-mutations.yml
