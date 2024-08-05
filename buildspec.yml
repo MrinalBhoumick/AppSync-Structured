@@ -1,11 +1,25 @@
 version: 0.2
 
 phases:
+  install:
+    commands:
+      - echo Installing dependencies...
   pre_build:
     commands:
-      - echo Loading environment variables...
-      - echo Printing directory structure...
-      - ls -R
+      - echo Assuming role...
+      - >
+        ROLE_CREDS=$(aws sts assume-role \
+        --role-arn "arn:aws:iam::992382729083:role/sts-tenant-role" \
+        --role-session-name "CodeBuildSession")
+      - export AWS_ACCESS_KEY_ID=$(echo $ROLE_CREDS | jq -r '.Credentials.AccessKeyId')
+      - export AWS_SECRET_ACCESS_KEY=$(echo $ROLE_CREDS | jq -r '.Credentials.SecretAccessKey')
+      - export AWS_SESSION_TOKEN=$(echo $ROLE_CREDS | jq -r '.Credentials.SessionToken')
+
+      - echo Setting AWS CLI configuration...
+      - aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
+      - aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
+      - aws configure set aws_session_token $AWS_SESSION_TOKEN
+      - aws configure set default.region <your-region>
 
   build:
     commands:
@@ -33,4 +47,5 @@ artifacts:
     - src/update-queries.yml
     - src/update-mutations.yml
 
+# Use the custom Docker image
 image: 992382729083.dkr.ecr.ap-south-1.amazonaws.com/codebuild-custom-aml2023:latest
