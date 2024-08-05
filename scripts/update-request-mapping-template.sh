@@ -11,11 +11,10 @@ bash scripts/create-update-data-source.sh
 # Fetch queries from the YAML file
 QUERIES=($(yq e '.queries[]' src/update-queries.yml))
 
-# Update request mapping templates for queries
+# Update response mapping templates for queries
 for query in "${QUERIES[@]}"; do
-  echo "Updating request mapping template for query: $query"
+  echo "Updating response mapping template for query: $query"
   TEMPLATE_PATH="src/Queries/$query/request_mapping_template.graphql"
-  RESPONSE_TEMPLATE_PATH="src/Queries/$query/response_mapping_template.graphql"
   if [ ! -f "$TEMPLATE_PATH" ]; then
     echo "Request mapping template file not found for query: $query at $TEMPLATE_PATH"
     continue
@@ -30,7 +29,6 @@ for query in "${QUERIES[@]}"; do
       --type-name Query \
       --field-name $query \
       --request-mapping-template file://$TEMPLATE_PATH \
-      --response-mapping-template file://$RESPONSE_TEMPLATE_PATH \
       --data-source-name $DATA_SOURCE \
       --kind UNIT
   else
@@ -39,7 +37,7 @@ for query in "${QUERIES[@]}"; do
       --type-name Query \
       --field-name $query \
       --request-mapping-template file://$TEMPLATE_PATH \
-      --response-mapping-template file://$RESPONSE_TEMPLATE_PATH \
+      --response-mapping-template file://src/Queries/$query/response_mapping_template.graphql \
       --data-source-name $DATA_SOURCE \
       --kind UNIT
   fi
@@ -48,11 +46,10 @@ done
 # Fetch mutations from the YAML file
 MUTATIONS=($(yq e '.mutations[]' src/update-mutations.yml))
 
-# Update request mapping templates for mutations
+# Update response mapping templates for mutations
 for mutation in "${MUTATIONS[@]}"; do
-  echo "Updating request mapping template for mutation: $mutation"
+  echo "Updating response mapping template for mutation: $mutation"
   TEMPLATE_PATH="src/Mutations/$mutation/request_mapping_template.graphql"
-  RESPONSE_TEMPLATE_PATH="src/Mutations/$mutation/response_mapping_template.graphql"
   if [ ! -f "$TEMPLATE_PATH" ]; then
     echo "Request mapping template file not found for mutation: $mutation at $TEMPLATE_PATH"
     continue
@@ -67,7 +64,6 @@ for mutation in "${MUTATIONS[@]}"; do
       --type-name Mutation \
       --field-name $mutation \
       --request-mapping-template file://$TEMPLATE_PATH \
-      --response-mapping-template file://$RESPONSE_TEMPLATE_PATH \
       --data-source-name $DATA_SOURCE \
       --kind UNIT
   else
@@ -76,7 +72,7 @@ for mutation in "${MUTATIONS[@]}"; do
       --type-name Mutation \
       --field-name $mutation \
       --request-mapping-template file://$TEMPLATE_PATH \
-      --response-mapping-template file://$RESPONSE_TEMPLATE_PATH \
+      --response-mapping-template file://src/Mutations/$mutation/response_mapping_template.graphql \
       --data-source-name $DATA_SOURCE \
       --kind UNIT
   fi
