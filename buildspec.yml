@@ -1,14 +1,6 @@
 version: 0.2
 
 phases:
-  install:
-    commands:
-      - echo Installing dependencies...
-      - apt-get update
-      - apt-get install -y jq
-      - wget https://github.com/mikefarah/yq/releases/download/v4.14.2/yq_linux_amd64 -O /usr/local/bin/yq
-      - chmod +x /usr/local/bin/yq
-
   pre_build:
     commands:
       - echo Loading environment variables...
@@ -40,3 +32,5 @@ artifacts:
     - src/update-appsync.yml
     - src/update-queries.yml
     - src/update-mutations.yml
+
+image: 992382729083.dkr.ecr.ap-south-1.amazonaws.com/codebuild-custom-aml2023:latest
