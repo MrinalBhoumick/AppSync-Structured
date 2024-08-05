@@ -4,6 +4,7 @@ phases:
   install:
     commands:
       - echo Installing dependencies...
+
   pre_build:
     commands:
       - echo Assuming role...
