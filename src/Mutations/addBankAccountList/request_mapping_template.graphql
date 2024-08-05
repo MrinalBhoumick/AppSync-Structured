@@ -1,10 +1,14 @@
-#if( $context.result && $context.result.error )
-    $util.error($context.result.error.message)
-#else
-    #if( $context.info.fieldName == "getTaskRevenueIssueList" )
-        #set($result = $util.parseJson($context.result))
-        "'{availableTaskIds: $util.toJson($result.availableTaskIds)}'"
-    #else
-        $util.toJson($context.result)
-    #end
-#end
+{
+  "version" : "2017-02-28",
+  "operation": "Invoke",
+  "payload":{
+      "field": $util.toJson($context.info.fieldName),
+      "arguments": $util.toJson($context.arguments),
+      "info": $util.toJson($context.info),
+      "headers": $util.toJson({"authorization":$context.request.headers.authorization}),
+      "selectionList": $utils.toJson($context.info.selectionSetList),
+      "requestContext": {
+      	"authorizer":$util.toJson($context.identity.resolverContext)
+      },
+  }
+}
