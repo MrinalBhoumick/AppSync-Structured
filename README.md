@@ -113,4 +113,22 @@ src/Mutations/**/request_mapping_template.graphql
 src/Mutations/**/response_mapping_template.graphql
 ```
 
-This structure and README should provide a solid foundation for managing and documenting your AWS AppSync API project. Feel free to adjust the content according to your specific needs and preferences!
+## Build and Push the Docker Image to AWS ECR
+
+**Create an ECR repository**:
+
+aws ecr create-repository --repository-name codebuild-ami
+
+**Authenticate Docker to your ECR registry**:
+
+aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin <account-id>.dkr.ecr.ap-south-1.amazonaws.com
+
+**Build the Docker image**:
+
+docker build -t codebuild-ami .
+
+**Tag the Docker image**:
+
+docker tag codebuild-ami:latest <account-id>.dkr.ecr.<your-region>.amazonaws.com/codebuild-custom-aml2023:latest
+
+
