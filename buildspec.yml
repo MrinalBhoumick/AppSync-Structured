@@ -4,7 +4,6 @@ phases:
   install:
     commands:
       - echo Installing dependencies...
-      # No need to install dependencies here as they are already included in the Docker image
 
   pre_build:
     commands:
@@ -49,6 +48,3 @@ artifacts:
     - src/update-appsync.yml
     - src/update-queries.yml
     - src/update-mutations.yml
-
-# Use the custom Docker image
-image: 992382729083.dkr.ecr.ap-south-1.amazonaws.com/codebuild-custom-aml2023:latest
