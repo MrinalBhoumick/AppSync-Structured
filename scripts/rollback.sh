@@ -1,5 +1,20 @@
 #!/bin/bash
 
+# Check if git is installed
+if ! command -v git &> /dev/null; then
+  echo "git command not found. Please ensure git is installed."
+  exit 1
+fi
+
+# Navigate to the repository directory
+REPO_DIR="/codebuild/repo" # Adjust this path as needed
+if [ -d "$REPO_DIR" ]; then
+  cd "$REPO_DIR" || { echo "Failed to navigate to $REPO_DIR"; exit 1; }
+else
+  echo "Repository directory $REPO_DIR not found."
+  exit 1
+fi
+
 # Check if rollback.flag exists
 if [ -f rollback.flag ]; then
   echo "Rollback flag detected. Reverting to the previous successful commit..."
