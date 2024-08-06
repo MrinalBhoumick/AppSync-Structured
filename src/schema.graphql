@@ -584,7 +584,7 @@ input deleteCTCTimeLine_InputType {
 
 input deleteCTCTimeLine_Where_InputType {
 	ctc_id: Int!
-}
+
 
 input deleteCompany_InputType {
 	where: deleteCompany_Where_InputType
