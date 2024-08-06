@@ -16,15 +16,5 @@ RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2
     ./aws/install && \
     rm -rf awscliv2.zip aws
 
-# Set the working directory
-WORKDIR /build
-
-# Copy the buildspec.yml and scripts into the container
-COPY buildspec.yml /buildspec.yml
-COPY scripts/ /build/scripts/
-
-# Make sure all scripts are executable
-RUN chmod +x /build/scripts/*.sh
-
 # Define the entrypoint
 ENTRYPOINT ["/bin/bash", "-c"]

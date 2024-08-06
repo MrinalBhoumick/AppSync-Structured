@@ -23,9 +23,9 @@ phases:
 
 artifacts:
   files:
-    - src/update-appsync.yml
-    - src/update-queries.yml
-    - src/update-mutations.yml
+    - SAM/update-appsync.yml
+    - SAM/update-queries.yml
+    - SAM/update-mutations.yml
 
 # Use the custom Docker image
 image: 992382729083.dkr.ecr.ap-south-1.amazonaws.com/codebuild-custom-aml2023:latest

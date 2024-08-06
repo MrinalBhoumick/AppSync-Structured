@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # Load API details from the YAML file
-API_ID=$(yq e '.api_id' src/update-appsync.yml)
-API_NAME=$(yq e '.api_name' src/update-appsync.yml)
+API_ID=$(yq e '.api_id' SAM/update-appsync.yml)
+API_NAME=$(yq e '.api_name' SAM/update-appsync.yml)
 
 if [ "$API_ID" == "None" ] || [ -z "$API_ID" ]; then
   echo "API ID not found. Please ensure the API exists."

@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # Load the API ID, Lambda Function ARN, and Role ARN from the YAML files
-API_ID=$(yq e '.api_id' src/update-appsync.yml)
-LAMBDA_FUNCTION_ARN=$(yq e '.lambda_function_arn' src/update-appsync.yml)
-ROLE_ARN=$(yq e '.role_arn' src/update-appsync.yml)
+API_ID=$(yq e '.api_id' SAM/update-appsync.yml)
+LAMBDA_FUNCTION_ARN=$(yq e '.lambda_function_arn' SAM/update-appsync.yml)
+ROLE_ARN=$(yq e '.role_arn' SAM/update-appsync.yml)
 
 # Check if Lambda function ARN and Role ARN are provided
 if [ -z "$LAMBDA_FUNCTION_ARN" ] || [ -z "$ROLE_ARN" ]; then
