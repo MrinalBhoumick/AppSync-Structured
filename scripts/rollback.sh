@@ -6,8 +6,10 @@ if ! command -v git &> /dev/null; then
   exit 1
 fi
 
-# Navigate to the repository directory
+# Define the repository directory
 REPO_DIR="/codebuild/repo" # Adjust this path as needed
+
+# Check if the repository directory exists
 if [ -d "$REPO_DIR" ]; then
   cd "$REPO_DIR" || { echo "Failed to navigate to $REPO_DIR"; exit 1; }
 else
@@ -18,6 +20,9 @@ fi
 # Check if rollback.flag exists
 if [ -f rollback.flag ]; then
   echo "Rollback flag detected. Reverting to the previous successful commit..."
+
+  # Fetch the latest commit history from remote
+  git fetch origin
 
   # Reset to the last successful commit
   git reset --hard HEAD~1
@@ -30,5 +35,5 @@ if [ -f rollback.flag ]; then
 
   echo "Rollback to previous successful commit completed."
 else
-  echo "No rollback needed."
+  echo "No rollback flag detected. No rollback needed."
 fi
