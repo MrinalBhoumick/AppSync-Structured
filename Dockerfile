@@ -3,7 +3,7 @@ FROM amazonlinux:2023
 
 # Install necessary packages
 RUN yum update -y && \
-    yum install -y jq wget unzip && \
+    yum install -y jq wget unzip git && \
     yum clean all
 
 # Install yq
