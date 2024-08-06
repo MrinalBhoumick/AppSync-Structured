@@ -1,25 +1,41 @@
 version: 0.2
 
 phases:
+  pre_build:
+    commands:
+      - echo Checking for rollback...
+      - bash scripts/rollback.sh
+
   build:
     commands:
       - echo Creating AppSync API if it does not exist...
-      - bash scripts/create-api.sh
+      - bash scripts/create-api.sh || { echo "Build failed"; touch rollback.flag; exit 1; }
 
       - echo Updating schema...
-      - bash scripts/update-schema.sh
+      - bash scripts/update-schema.sh || { echo "Build failed"; touch rollback.flag; exit 1; }
 
       - echo Creating or updating the data source...
-      - bash scripts/create-update-data-source.sh
+      - bash scripts/create-update-data-source.sh || { echo "Build failed"; touch rollback.flag; exit 1; }
 
       - echo Updating request mapping templates...
-      - bash scripts/update-request-mapping-template.sh
+      - bash scripts/update-request-mapping-template.sh || { echo "Build failed"; touch rollback.flag; exit 1; }
 
       - echo Updating response mapping templates...
-      - bash scripts/update-response-mapping-template.sh
+      - bash scripts/update-response-mapping-template.sh || { echo "Build failed"; touch rollback.flag; exit 1; }
 
       - echo Updating Lambda authorizer...
-      - bash scripts/update-lambda-authorizer.sh
+      - bash scripts/update-lambda-authorizer.sh || { echo "Build failed"; touch rollback.flag; exit 1; }
+
+  post_build:
+    commands:
+      - echo "Build phase completed. Checking for rollback flag..."
+      - if [ -f rollback.flag ]; then
+        echo "Build failed. Performing rollback...";
+        bash scripts/rollback.sh;
+        exit 1;
+        else
+        echo "Build succeeded. No rollback needed.";
+        fi
 
 artifacts:
   files:
