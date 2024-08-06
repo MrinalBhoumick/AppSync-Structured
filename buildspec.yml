@@ -6,18 +6,25 @@ phases:
       - echo Cloning the repository...
       - git clone https://github.com/MrinalBhoumick/AppSync-Structured.git /codebuild/repo
       - cd /codebuild/repo
+
       - echo Creating AppSync API if it does not exist...
-      - bash scripts/create-api.sh || { echo "Build failed"; touch rollback.flag; exit 1; }
+      - bash scripts/create-api.sh
+
       - echo Updating schema...
-      - bash scripts/update-schema.sh || { echo "Build failed"; touch rollback.flag; exit 1; }
+      - bash scripts/update-schema.sh || { echo "Schema update failed"; touch rollback.flag; exit 1; }
+
       - echo Creating or updating the data source...
-      - bash scripts/create-update-data-source.sh || { echo "Build failed"; touch rollback.flag; exit 1; }
+      - bash scripts/create-update-data-source.sh || { echo "Data source update failed"; touch rollback.flag; exit 1; }
+
       - echo Updating request mapping templates...
-      - bash scripts/update-request-mapping-template.sh || { echo "Build failed"; touch rollback.flag; exit 1; }
+      - bash scripts/update-request-mapping-template.sh || { echo "Request mapping update failed"; touch rollback.flag; exit 1; }
+
       - echo Updating response mapping templates...
-      - bash scripts/update-response-mapping-template.sh || { echo "Build failed"; touch rollback.flag; exit 1; }
+      - bash scripts/update-response-mapping-template.sh || { echo "Response mapping update failed"; touch rollback.flag; exit 1; }
+
       - echo Updating Lambda authorizer...
-      - bash scripts/update-lambda-authorizer.sh || { echo "Build failed"; touch rollback.flag; exit 1; }
+      - bash scripts/update-lambda-authorizer.sh || { echo "Lambda authorizer update failed"; touch rollback.flag; exit 1; }
+
   post_build:
     commands:
       - echo Build phase completed. Checking for rollback flag...
