@@ -7,7 +7,7 @@ if ! command -v git &> /dev/null; then
 fi
 
 # Navigate to the repository directory
-REPO_DIR="/codebuild/repo" # Adjust this path as needed
+REPO_DIR="/codebuild/repo"
 if [ -d "$REPO_DIR" ]; then
   cd "$REPO_DIR" || { echo "Failed to navigate to $REPO_DIR"; exit 1; }
 else
