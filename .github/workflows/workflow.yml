@@ -19,7 +19,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v3
         with:
           aws-region: 'ap-south-1'
-          role-to-assume: 'arn:aws:iam::992382729083:role/GitHubActionsRole'
+          role-to-assume: 'arn:aws:iam::992382729083:role/GitHubActionsRole' #Added Permission to Github to Access AWS Account
           role-session-name: 'GitHubActionsSession'
 
       - name: Notify deployment status
