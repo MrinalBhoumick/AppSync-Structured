@@ -21,6 +21,7 @@ jobs:
           aws-region: 'ap-south-1'
           role-to-assume: 'arn:aws:iam::992382729083:role/GitHubActionsRole' #Added Permission to Github to Access AWS Account 
           role-session-name: 'GitHubActionsSession'
+          audience: sts.amazonaws.com
 
       - name: Notify deployment status
         run: |
