@@ -8,7 +8,7 @@ phases:
       - cd /codebuild/repo
 
       - echo Creating AppSync API if it does not exist...
-      - bash scripts/create-api.sh
+      - bash scripts/create-api.sh || { echo "API creation failed"; touch rollback.flag; exit 1; }
 
       - echo Updating schema...
       - bash scripts/update-schema.sh || { echo "Schema update failed"; touch rollback.flag; exit 1; }
