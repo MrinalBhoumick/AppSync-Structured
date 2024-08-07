@@ -36,8 +36,9 @@ phases:
       - echo Build phase completed. Checking for rollback flag...
       - |
         if [ -f rollback.flag ]; then
-          echo "Build failed. Performing rollback...";
+          echo "Build failed. Performing rollback..."
           if [ -f artifacts/last-successful-build.tar.gz ]; then
+            echo "Found previous successful build artifact. Running rollback script..."
             bash scripts/rollback.sh
           else
             echo "No previous successful build artifact found in S3. Cannot perform rollback."
@@ -48,6 +49,7 @@ phases:
           echo Packaging the repository...
           mkdir -p artifacts
           tar --exclude='./artifacts' -czf artifacts/last-successful-build.tar.gz .
+          echo Uploading package to S3...
           aws s3 cp artifacts/last-successful-build.tar.gz s3://$S3_BUCKET/last-successful-build.tar.gz
         fi
 
