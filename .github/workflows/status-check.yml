@@ -1,0 +1,37 @@
+name: Status Check
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  status-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Run tests
+        run: |
+          # Run your tests or build commands here
+          echo "Running tests..."
+          # Example command
+          exit 0  # Change this to exit 1 if tests fail
+
+      - name: Post status check
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const status = process.env.GITHUB_JOB_STATUS;
+            const emoji = status === 'success' ? '✅' : '❌';
+            const message = `Build Status: ${emoji}`;
+            
+            // Update the status check
+            await github.rest.repos.createCommitStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha: context.payload.pull_request.head.sha,
+              state: status,
+              description: message,
+              context: 'Build Status'
+            });
