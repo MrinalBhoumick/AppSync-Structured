@@ -1,4 +1,4 @@
-name: Deploy to AWS
+name: CI/CD Pipeline
 
 on:
   push:
@@ -11,15 +11,12 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    permissions:
-      id-token: write
-      contents: read
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Configure AWS credentials
+      - name: Set up AWS credentials
         uses: aws-actions/configure-aws-credentials@v3
         with:
           aws-region: ap-south-1
@@ -27,30 +24,20 @@ jobs:
           role-session-name: GitHubActionsSession
           audience: sts.amazonaws.com
 
-      - name: Run build commands
-        run: |
-          echo "Running build commands..."
-          # Simulate build status
-          BUILD_STATUS="success"
+      - name: Build and Deploy
+        uses: docker://992382729083.dkr.ecr.ap-south-1.amazonaws.com/codebuild-custom-aml2023:latest
+        with:
+          entrypoint: "/bin/bash"
+          args: "-c 'mkdir -p artifacts && /usr/local/bin/aws s3 cp s3://$S3_BUCKET/last-successful-build.tar.gz artifacts/last-successful-build.tar.gz || echo \"No previous build found in S3\" && echo Pre-build phase... && bash -c \"if [ -f rollback.flag ]; then echo \"Build failed. Performing rollback...\"; ARTIFACTS=$(aws s3 ls s3://$S3_BUCKET/ --recursive | grep \'.tar.gz\' || echo \"No artifacts found in S3\"); if [ \"$ARTIFACTS\" != \"No artifacts found in S3\" ]; then LATEST_ARTIFACT=$(echo \"$ARTIFACTS\" | sort | tail -n 1 | awk \'{print $4}\'); echo \"Found previous successful build artifact: $LATEST_ARTIFACT. Running rollback script...\"; aws s3 cp s3://$S3_BUCKET/$LATEST_ARTIFACT artifacts/latest-build.tar.gz; chmod +x scripts/rollback.sh; bash scripts/rollback.sh || { echo \"Rollback failed\"; exit 1; }; else echo \"No previous build artifact found in S3. Cannot perform rollback.\"; exit 1; fi; else echo \"Build succeeded. No rollback needed.\"; echo Packaging the repository...; mkdir -p artifacts; tar --exclude=\'./artifacts\' -czf artifacts/last-successful-build.tar.gz .; echo Uploading package to S3...; aws s3 cp artifacts/last-successful-build.tar.gz s3://$S3_BUCKET/last-successful-build.tar.gz || { echo \"Upload to S3 failed\"; exit 1; } fi'"
 
-      - name: Install GitHub CLI
-        run: sudo apt-get install gh
-
-      - name: Comment on Pull Request or Commit
-        if: github.event_name == 'pull_request' || github.event_name == 'push'
+      - name: Post Build Status
         run: |
-          if [ "$BUILD_STATUS" == "success" ]; then
-            if [ "${{ github.event_name }}" == "pull_request" ]; then
-              gh pr comment ${{ github.event.pull_request.number }} --body "$(printf '✅ Deployment succeeded')"
-            elif [ "${{ github.event_name }}" == "push" ]; then
-              gh pr comment $(gh pr list --state open --json number --jq '.[0].number') --body "$(printf '✅ Deployment succeeded')" || echo "No open pull request found."
-            fi
+          if [ -f rollback.flag ]; then
+            echo "Build failed. Rolling back..."
+            gh pr comment ${{ github.event.pull_request.number }} --body "$(printf '❌ Build failed. Rolled back to the previous successful build')"
           else
-            if [ "${{ github.event_name }}" == "pull_request" ]; then
-              gh pr comment ${{ github.event.pull_request.number }} --body "$(printf '❌ Deployment failed')"
-            elif [ "${{ github.event_name }}" == "push" ]; then
-              gh pr comment $(gh pr list --state open --json number --jq '.[0].number') --body "$(printf '❌ Deployment failed')" || echo "No open pull request found."
-            fi
+            echo "Build succeeded"
+            gh pr comment ${{ github.event.pull_request.number }} --body "$(printf '✅ Build succeeded')"
           fi
         env:
           GH_TOKEN: ${{ secrets.XGITHUB_TOKEN }}
