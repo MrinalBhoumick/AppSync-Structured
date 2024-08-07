@@ -596,7 +596,7 @@ input deleteCompany_Where_InputType {
 
 input deleteCostCenter_InputType {
 	where: deleteCostCenter_Where_InputType
-}
+
 
 input deleteCostCenter_Where_InputType {
 	id: TableIntFilterInput!
