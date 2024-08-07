@@ -36,7 +36,11 @@ phases:
       - echo Build phase completed. Checking for rollback flag...
       - if [ -f rollback.flag ]; then
         echo "Build failed. Performing rollback...";
+        if [ -f artifacts/last-successful-build.tar.gz ]; then
         bash scripts/rollback.sh;
+        else
+        echo "No previous successful build artifact found in S3. Cannot perform rollback.";
+        fi
         exit 1;
         else
         echo "Build succeeded. No rollback needed.";
