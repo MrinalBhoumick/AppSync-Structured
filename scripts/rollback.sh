@@ -15,12 +15,21 @@ else
   exit 1
 fi
 
+# Fetch S3 bucket name from environment variable
+if [ -z "$S3_BUCKET" ]; then
+  echo "S3_BUCKET environment variable is not set."
+  exit 1
+fi
+
 # Check if rollback.flag exists
 if [ -f rollback.flag ]; then
   echo "Rollback flag detected. Reverting to the previous successful build..."
 
   # Check if the artifact exists in the S3 bucket
-  if [ -f artifacts/last-successful-build.tar.gz ]; then
+  if aws s3 ls "s3://$S3_BUCKET/last-successful-build.tar.gz" &> /dev/null; then
+    # Download the last successful build from S3
+    aws s3 cp "s3://$S3_BUCKET/last-successful-build.tar.gz" artifacts/last-successful-build.tar.gz
+
     # Extract the last successful build
     tar -xzf artifacts/last-successful-build.tar.gz -C .
 
