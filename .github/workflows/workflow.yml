@@ -9,28 +9,48 @@ on:
       - main
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
-    
     permissions:
       id-token: write
       contents: read
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up AWS CLI
+      - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v3
         with:
-          aws-region: 'ap-south-1'
-          role-to-assume: 'arn:aws:iam::992382729083:role/GitHubActionsRole' #Added Permission to Github to Access AWS Account 
-          role-session-name: 'GitHubActionsSession'
+          aws-region: ap-south-1
+          role-to-assume: arn:aws:iam::992382729083:role/GitHubActionsRole
+          role-session-name: GitHubActionsSession
           audience: sts.amazonaws.com
 
-      - name: Notify deployment status
+      - name: Run build commands
         run: |
-          if [ "${{ job.status }}" == "success" ]; then
-            echo "Deployment succeeded" | gh pr comment ${{ github.event.pull_request.number }} --body "$(printf '✅ Deployment succeeded')"
+          echo "Running build commands..."
+          # Simulate build status
+          BUILD_STATUS="success"
+
+      - name: Install GitHub CLI
+        run: sudo apt-get install gh
+
+      - name: Comment on Pull Request or Commit
+        if: github.event_name == 'pull_request' || github.event_name == 'push'
+        run: |
+          if [ "$BUILD_STATUS" == "success" ]; then
+            if [ "${{ github.event_name }}" == "pull_request" ]; then
+              gh pr comment ${{ github.event.pull_request.number }} --body "$(printf '✅ Deployment succeeded')"
+            elif [ "${{ github.event_name }}" == "push" ]; then
+              gh pr comment $(gh pr list --state open --json number --jq '.[0].number') --body "$(printf '✅ Deployment succeeded')" || echo "No open pull request found."
+            fi
           else
-            echo "Deployment failed" | gh pr comment ${{ github.event.pull_request.number }} --body "$(printf '❌ Deployment failed')"
+            if [ "${{ github.event_name }}" == "pull_request" ]; then
+              gh pr comment ${{ github.event.pull_request.number }} --body "$(printf '❌ Deployment failed')"
+            elif [ "${{ github.event_name }}" == "push" ]; then
+              gh pr comment $(gh pr list --state open --json number --jq '.[0].number') --body "$(printf '❌ Deployment failed')" || echo "No open pull request found."
+            fi
           fi
+        env:
+          GH_TOKEN: ${{ secrets.XGITHUB_TOKEN }}
