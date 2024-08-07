@@ -11,10 +11,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    
-    permissions:
-      id-token: write
-      contents: read
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -29,8 +26,8 @@ jobs:
           sudo apt-get install -y docker-ce docker-ce-cli containerd.io
           sudo systemctl start docker
           sudo systemctl enable docker
-        env:
-          GH_TOKEN: ${{ secrets.XGITHUB_TOKEN }}  # Use GitHub token for authentication
+          docker --version
+          docker info
 
       - name: Log in to Amazon ECR
         run: |
@@ -53,7 +50,9 @@ jobs:
 
       - name: Run buildspec
         run: |
-          docker run --rm -v $(pwd):/workspace -w /workspace 992382729083.dkr.ecr.ap-south-1.amazonaws.com/codebuild-custom-aml2023:latest /bin/bash -c "aws codebuild start-build --project-name AppSync-Build --source-version $GITHUB_SHA"
+          docker run --rm -v $(pwd):/workspace -w /workspace 992382729083.dkr.ecr.ap-south-1.amazonaws.com/codebuild-custom-aml2023:latest /bin/bash -c "aws codebuild start-build --project-name YOUR_PROJECT_NAME --source-version $GITHUB_SHA"
+        env:
+          GH_TOKEN: ${{ secrets.XGITHUB_TOKEN }}  # Use GitHub token for authentication
 
       - name: Post deployment status
         run: |
