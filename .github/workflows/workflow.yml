@@ -19,59 +19,48 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up AWS credentials
+      - name: Set up Docker
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common
+          curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+          sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+          sudo apt-get update
+          sudo apt-get install -y docker-ce docker-ce-cli containerd.io
+          sudo systemctl start docker
+          sudo systemctl enable docker
+        env:
+          GH_TOKEN: ${{ secrets.XGITHUB_TOKEN }}  # Use GitHub token for authentication
+
+      - name: Log in to Amazon ECR
+        run: |
+          aws ecr get-login-password --region ap-south-1 | sudo docker login --username AWS --password-stdin 992382729083.dkr.ecr.ap-south-1.amazonaws.com
+
+      - name: Pull Docker Image
+        run: |
+          sudo docker pull 992382729083.dkr.ecr.ap-south-1.amazonaws.com/codebuild-custom-aml2023:latest
+
+      - name: Set up AWS CLI
         uses: aws-actions/configure-aws-credentials@v3
         with:
           aws-region: ap-south-1
           role-to-assume: arn:aws:iam::992382729083:role/GitHubActionsRole
           role-session-name: GitHubActionsSession
           audience: sts.amazonaws.com
+        permissions:
+          id-token: write
+          contents: read
 
-      - name: Install Docker
+      - name: Run buildspec
         run: |
-          sudo apt-get update
-          sudo apt-get install -y docker.io
-          sudo systemctl start docker
-          sudo systemctl enable docker
-          sudo usermod -aG docker $USER
+          docker run --rm -v $(pwd):/workspace -w /workspace 992382729083.dkr.ecr.ap-south-1.amazonaws.com/codebuild-custom-aml2023:latest /bin/bash -c "aws codebuild start-build --project-name AppSync-Build --source-version $GITHUB_SHA"
 
-      - name: Login to Amazon ECR
-        uses: aws-actions/amazon-ecr-login@v1
-
-      - name: Pull Docker image
+      - name: Post deployment status
         run: |
-          docker pull 992382729083.dkr.ecr.ap-south-1.amazonaws.com/codebuild-custom-aml2023:latest
-
-      - name: Run Docker container
-        run: |
-          docker run --rm -v ${{ github.workspace }}:/codebuild/repo -e S3_BUCKET=${{ secrets.S3_BUCKET }} 992382729083.dkr.ecr.ap-south-1.amazonaws.com/codebuild-custom-aml2023:latest /bin/bash -c "
-            mkdir -p artifacts && \
-            ARTIFACTS=$(aws s3 ls s3://$S3_BUCKET/ --recursive | grep 'last-successful-build.tar.gz' || echo 'No previous build found in S3') && \
-            if [ \"$ARTIFACTS\" != \"No previous build found in S3\" ]; then \
-              echo 'Previous build artifact found. Downloading...'; \
-              aws s3 cp s3://$S3_BUCKET/last-successful-build.tar.gz artifacts/last-successful-build.tar.gz; \
-            fi && \
-            echo Creating AppSync API if it does not exist... && \
-            bash scripts/create-api.sh || { echo 'API creation failed'; touch rollback.flag; exit 1; } && \
-            echo Updating schema... && \
-            bash scripts/update-schema.sh || { echo 'Schema update failed'; touch rollback.flag; exit 1; } && \
-            echo Creating or updating the data source... && \
-            bash scripts/create-update-data-source.sh || { echo 'Data source update failed'; touch rollback.flag; exit 1; } && \
-            echo Updating request mapping templates... && \
-            bash scripts/update-request-mapping-template.sh || { echo 'Request mapping update failed'; touch rollback.flag; exit 1; } && \
-            echo Updating response mapping templates... && \
-            bash scripts/update-response-mapping-template.sh || { echo 'Response mapping update failed'; touch rollback.flag; exit 1; } && \
-            echo Updating Lambda authorizer... && \
-            bash scripts/update-lambda-authorizer.sh || { echo 'Lambda authorizer update failed'; touch rollback.flag; exit 1; }"
-
-      - name: Post Build Status
-        run: |
-          if [ -f rollback.flag ]; then
-            echo "Build failed. Rolling back..."
-            gh pr comment ${{ github.event.pull_request.number }} --body "$(printf '❌ Build failed. Rolled back to the previous successful build')"
+          if [ $? -eq 0 ]; then
+            echo "✅ Deployment succeeded" | gh pr comment ${{ github.event.pull_request.number }} --body "$(printf '✅ Deployment succeeded')"
           else
-            echo "Build succeeded"
-            gh pr comment ${{ github.event.pull_request.number }} --body "$(printf '✅ Build succeeded')"
+            echo "❌ Deployment failed" | gh pr comment ${{ github.event.pull_request.number }} --body "$(printf '❌ Deployment failed')"
           fi
         env:
-          GH_TOKEN: ${{ secrets.XGITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.XGITHUB_TOKEN }}  # Use GitHub token for authentication
