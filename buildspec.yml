@@ -41,12 +41,14 @@ phases:
         else
         echo "Build succeeded. No rollback needed.";
         echo Packaging the repository...;
-        tar -czf artifacts/last-successful-build.tar.gz .;
+        mkdir -p artifacts;
+        tar --exclude='./artifacts' -czf artifacts/last-successful-build.tar.gz .;
         aws s3 cp artifacts/last-successful-build.tar.gz s3://$S3_BUCKET/last-successful-build.tar.gz;
         fi
 
 artifacts:
   files:
     - "**/*"
+
 # Use the custom Docker image
 image: 992382729083.dkr.ecr.ap-south-1.amazonaws.com/codebuild-custom-aml2023:latest
