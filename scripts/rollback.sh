@@ -27,7 +27,7 @@ if [ -f rollback.flag ]; then
 
   # Check if the artifact exists in the S3 bucket
   if aws s3 ls "s3://$S3_BUCKET/last-successful-build.tar.gz" &> /dev/null; then
-    # Download the last successful build from S3
+    echo "Artifact found. Downloading from S3..."
     aws s3 cp "s3://$S3_BUCKET/last-successful-build.tar.gz" artifacts/last-successful-build.tar.gz
 
     # Check if the download was successful
