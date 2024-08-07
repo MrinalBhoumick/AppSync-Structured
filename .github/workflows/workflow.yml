@@ -54,14 +54,31 @@ jobs:
             echo Updating Lambda authorizer... && \
             bash scripts/update-lambda-authorizer.sh || { echo 'Lambda authorizer update failed'; touch rollback.flag; exit 1; }"
 
-      - name: Post Build Status
+      - name: Delay before checking CodePipeline status
+        run: sleep 45
+
+      - name: Check CodePipeline Status
+        id: codepipeline-status
         run: |
-          if [ -f rollback.flag ]; then
-            echo "Build failed. Rolling back..."
-            curl -X POST -H "Authorization: token ${{ secrets.XGITHUB_TOKEN }}" -d '{"body": "❌ Build failed. Rolled back to the previous successful build"}' "https://api.github.com/repos/${{ github.repository }}/issues/comments"
+          PIPELINE_NAME=${{ secrets.CODEPIPELINE_NAME }}
+          STATUS=$(aws codepipeline get-pipeline-state --name $PIPELINE_NAME --query 'stageStates[0].latestExecution.status' --output text)
+          echo "Pipeline status: $STATUS"
+          if [ "$STATUS" == "Succeeded" ]; then
+            echo "Pipeline succeeded"
+            echo "::set-output name=status::succeeded"
           else
-            echo "Build succeeded"
-            curl -X POST -H "Authorization: token ${{ secrets.XGITHUB_TOKEN }}" -d '{"body": "✅ Build succeeded"}' "https://api.github.com/repos/${{ github.repository }}/issues/comments"
+            echo "Pipeline failed"
+            echo "::set-output name=status::failed"
           fi
+
+      - name: Post Build Status
+        if: steps.codepipeline-status.outputs.status == 'succeeded'
+        run: echo "✅ Build succeeded" | gh comment --body "$(printf '✅ Build succeeded')"
+        env:
+          GH_TOKEN: ${{ secrets.XGITHUB_TOKEN }}
+
+      - name: Post Build Status on Failure
+        if: steps.codepipeline-status.outputs.status == 'failed'
+        run: echo "❌ Build failed" | gh comment --body "$(printf '❌ Build failed')"
         env:
           GH_TOKEN: ${{ secrets.XGITHUB_TOKEN }}
