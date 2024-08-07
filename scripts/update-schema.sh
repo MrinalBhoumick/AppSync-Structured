@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -x
+
 # Load API details from the YAML file
 API_ID=$(yq e '.api_id' SAM/update-appsync.yml)
 API_NAME=$(yq e '.api_name' SAM/update-appsync.yml)
