@@ -1,6 +1,12 @@
 version: 0.2
 
 phases:
+  pre_build:
+    commands:
+      - echo Pre-build phase...
+      - mkdir -p artifacts
+      - aws s3 cp s3://appsync-static-data/last-successful-build.tar.gz artifacts/last-successful-build.tar.gz || echo "No previous build found in S3"
+
   build:
     commands:
       - echo Cloning the repository...
@@ -28,13 +34,19 @@ phases:
   post_build:
     commands:
       - echo Build phase completed. Checking for rollback flag...
-      - if [ -f rollback.flag ]; then echo "Build failed. Performing rollback..."; bash scripts/rollback.sh; exit 1; else echo "Build succeeded. No rollback needed."; fi
+      - if [ -f rollback.flag ]; then
+        echo "Build failed. Performing rollback...";
+        bash scripts/rollback.sh;
+        exit 1;
+        else
+        echo "Build succeeded. No rollback needed.";
+        echo Packaging the repository...;
+        tar -czf artifacts/last-successful-build.tar.gz .;
+        aws s3 cp artifacts/last-successful-build.tar.gz s3://appsync-static-data/last-successful-build.tar.gz;
+        fi
 
 artifacts:
   files:
-    - SAM/update-appsync.yml
-    - SAM/update-queries.yml
-    - SAM/update-mutations.yml
-
+    - "**/*"
 # Use the custom Docker image
 image: 992382729083.dkr.ecr.ap-south-1.amazonaws.com/codebuild-custom-aml2023:latest
