@@ -1,0 +1,31 @@
+name: Deploy to AWS
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up AWS CLI
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+          aws-region: 'ap-south-1'
+          role-to-assume: 'arn:aws:iam::992382729083:role/service-role/codebuild-angular-codepipeline-service-role'
+          role-session-name: 'GitHubActionsSession'
+
+      - name: Notify deployment status
+        run: |
+          if [ "${{ job.status }}" == "success" ]; then
+            echo "Deployment succeeded" | gh pr comment ${{ github.event.pull_request.number }} --body "$(printf '✅ Deployment succeeded')"
+          else
+            echo "Deployment failed" | gh pr comment ${{ github.event.pull_request.number }} --body "$(printf '❌ Deployment failed')"
+          fi
