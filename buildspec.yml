@@ -1,5 +1,9 @@
 version: 0.2
 
+env:
+  variables:
+    S3_BUCKET: "appsync-static-data"
+
 phases:
   pre_build:
     commands:
@@ -39,7 +43,7 @@ phases:
           echo "Build failed. Performing rollback..."
           if [ -f artifacts/last-successful-build.tar.gz ]; then
             echo "Found previous successful build artifact. Running rollback script..."
-            bash scripts/rollback.sh
+            bash scripts/rollback.sh || { echo "Rollback failed"; exit 1; }
           else
             echo "No previous successful build artifact found in S3. Cannot perform rollback."
           fi
@@ -50,7 +54,7 @@ phases:
           mkdir -p artifacts
           tar --exclude='./artifacts' -czf artifacts/last-successful-build.tar.gz .
           echo Uploading package to S3...
-          aws s3 cp artifacts/last-successful-build.tar.gz s3://$S3_BUCKET/last-successful-build.tar.gz
+          aws s3 cp artifacts/last-successful-build.tar.gz s3://$S3_BUCKET/last-successful-build.tar.gz || { echo "Upload to S3 failed"; exit 1; }
         fi
 
 artifacts:
