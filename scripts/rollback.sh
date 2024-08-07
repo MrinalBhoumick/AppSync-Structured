@@ -30,8 +30,20 @@ if [ -f rollback.flag ]; then
     # Download the last successful build from S3
     aws s3 cp "s3://$S3_BUCKET/last-successful-build.tar.gz" artifacts/last-successful-build.tar.gz
 
+    # Check if the download was successful
+    if [ $? -ne 0 ]; then
+      echo "Failed to download artifact from S3."
+      exit 1
+    fi
+
     # Extract the last successful build
     tar -xzf artifacts/last-successful-build.tar.gz -C .
+
+    # Check if the extraction was successful
+    if [ $? -ne 0 ]; then
+      echo "Failed to extract artifact."
+      exit 1
+    fi
 
     # Clean the workspace to remove any changes made during the failed build
     git clean -fd
