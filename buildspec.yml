@@ -5,7 +5,7 @@ phases:
     commands:
       - echo Pre-build phase...
       - mkdir -p artifacts
-      - aws s3 cp s3://appsync-static-data/last-successful-build.tar.gz artifacts/last-successful-build.tar.gz || echo "No previous build found in S3"
+      - aws s3 cp s3://$S3_BUCKET/last-successful-build.tar.gz artifacts/last-successful-build.tar.gz || echo "No previous build found in S3"
 
   build:
     commands:
@@ -42,7 +42,7 @@ phases:
         echo "Build succeeded. No rollback needed.";
         echo Packaging the repository...;
         tar -czf artifacts/last-successful-build.tar.gz .;
-        aws s3 cp artifacts/last-successful-build.tar.gz s3://appsync-static-data/last-successful-build.tar.gz;
+        aws s3 cp artifacts/last-successful-build.tar.gz s3://$S3_BUCKET/last-successful-build.tar.gz;
         fi
 
 artifacts:
