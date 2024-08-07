@@ -58,10 +58,17 @@ jobs:
         run: |
           sleep 45
 
+      - name: Get latest CodePipeline execution ID
+        id: get-execution-id
+        run: |
+          EXECUTION_ID=$(aws codepipeline list-pipeline-executions --pipeline-name ${{ secrets.CODEPIPELINE_NAME }} --query 'pipelineExecutionSummaries[0].pipelineExecutionId' --output text)
+          echo "Pipeline execution ID: $EXECUTION_ID"
+          echo "::set-output name=execution-id::$EXECUTION_ID"
+
       - name: Check CodePipeline status
         id: codepipeline-status
         run: |
-          PIPELINE_STATUS=$(aws codepipeline get-pipeline-execution --pipeline-name ${{ secrets.CODEPIPELINE_NAME }} --stage-name Build --action-name BuildAction --query 'pipelineExecution.status' --output text)
+          PIPELINE_STATUS=$(aws codepipeline get-pipeline-execution --pipeline-name ${{ secrets.CODEPIPELINE_NAME }} --pipeline-execution-id ${{ steps.get-execution-id.outputs.execution-id }} --query 'pipelineExecution.status' --output text)
           echo "Pipeline status: $PIPELINE_STATUS"
           echo "::set-output name=status::$PIPELINE_STATUS"
 
@@ -81,4 +88,4 @@ jobs:
               "https://api.github.com/repos/${{ github.repository }}/commits/${{ github.sha }}/comments"
           fi
         env:
-          GH_TOKEN: ${{ secrets.XGITHUB_TOKEN }}
+          XGITHUB_TOKEN: ${{ secrets.XGITHUB_TOKEN }}
