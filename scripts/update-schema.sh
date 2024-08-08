@@ -1,26 +1,39 @@
 #!/bin/bash
 
 # Load API details from the YAML file
+API_ID=$(yq e '.api_id' SAM/update-appsync.yml)
 API_NAME=$(yq e '.api_name' SAM/update-appsync.yml)
-LAMBDA_AUTHORIZER_ARN=$(yq e '.lambda_authorizer_arn' SAM/update-appsync.yml)
 
-# Check if the API already exists
-API_ID=$(aws appsync list-graphql-apis --query "graphqlApis[?name=='$API_NAME'].apiId | [0]" --output text)
-
-if [ "$API_ID" == "None" ]; then
-  echo "Creating new AppSync API with name: $API_NAME"
-
-  # Create a new AppSync API
-  API_ID=$(aws appsync create-graphql-api \
-    --name $API_NAME \
-    --authentication-type AWS_LAMBDA \
-    --lambda-authorizer-config authorizerUri=$LAMBDA_AUTHORIZER_ARN \
-    --query 'graphqlApi.apiId' --output text)
-  
-  echo "Created new AppSync API with ID: $API_ID"
-  
-  # Update the YAML file with the new API ID
-  yq e -i ".api_id = \"$API_ID\"" SAM/update-appsync.yml
-else
-  echo "AppSync API already exists with ID: $API_ID"
+if [ "$API_ID" == "None" ] || [ -z "$API_ID" ]; then
+  echo "API ID not found. Please ensure the API exists."
+  exit 1
 fi
+
+if [ -z "$API_NAME" ]; then
+  echo "API Name not found. Please ensure it is defined in the YAML file."
+  exit 1
+fi
+
+# Base64 encode the schema file
+SCHEMA_BASE64=$(base64 -w 0 src/schema.graphql)
+
+# Update the schema in AppSync
+echo "Starting schema creation..."
+aws appsync start-schema-creation --api-id $API_ID --definition "$SCHEMA_BASE64"
+
+# Poll the schema creation status until it's done
+while true; do
+  STATUS=$(aws appsync get-schema-creation-status --api-id $API_ID --query 'status' --output text)
+  echo "Current schema creation status: $STATUS"
+  if [ "$STATUS" == "SUCCESS" ]; then
+    echo "Schema creation succeeded."
+    break
+  elif [ "$STATUS" == "FAILED" ]; then
+    echo "Schema creation failed."
+    aws appsync get-schema-creation-status --api-id $API_ID --query 'details' --output text
+    exit 1
+  else
+    echo "Schema creation is still processing. Waiting for 10 seconds..."
+    sleep 10
+  fi
+done
