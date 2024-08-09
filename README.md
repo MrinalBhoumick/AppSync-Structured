@@ -1,7 +1,3 @@
-Here's a comprehensive README.md documentation for your setup:
-
----
-
 # AWS AppSync CI/CD Setup
 
 This repository contains a CI/CD pipeline setup for managing AWS AppSync GraphQL API components, including schemas, queries, mutations, and Lambda resolvers. The pipeline uses CodeBuild for automating the update and creation of these components based on changes pushed to the repository.
@@ -253,7 +249,7 @@ Monitor the build process through the AWS CodeBuild console. Any errors will be 
 
 This setup provides a structured approach to managing AWS AppSync APIs using CI/CD. By leveraging automation and version control, you can ensure that your API components are consistently deployed and updated with minimal manual intervention.
 
-For further assistance or customization, refer to the AWS documentation or reach out to your DevOps team.
+For further assistance or customization, refer to the AWS documentation or reach out to Workmates DevOps team.
 
 --- 
 
