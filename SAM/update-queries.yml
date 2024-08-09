@@ -2,3 +2,4 @@ queries:
   - getBankAccountList
   - getBankList
   - getCTCTimeLine
+  - getTaskRevenue
