@@ -2,6 +2,7 @@ api_id: xvsrvp7upvbqrllss4yognt3aq
 api_name: buildtwin-commercial-module-prod
 lambda_authorizer_arn: arn:aws:lambda:ap-south-1:992382729083:function:appsync-lambda-authorizer
 data_source: LambdaDataSource
+region: ap-south-1
 auth_type: AWS_LAMBDA
 lambda_function_arn: arn:aws:lambda:ap-south-1:992382729083:function:commercial_cost_center
 role_arn: arn:aws:iam::992382729083:role/AppSyncCloudWatchlogs
