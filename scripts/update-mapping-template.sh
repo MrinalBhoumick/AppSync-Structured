@@ -7,6 +7,7 @@ DATA_SOURCE="LambdaDataSource"
 REGION=$(yq e '.region' SAM/update-appsync.yml)
 
 # Ensure the existence of the Lambda data source
+chmod +x ./scripts/create-update-data-source.sh
 ./scripts/create-update-data-source.sh
 
 # Fetch queries from the YAML file
