@@ -18,6 +18,7 @@ fi
 SCHEMA_BASE64=$(base64 -w 0 src/schema.graphql)
 
 # Update the schema in AppSync
+echo "ERROR Sample Pattern to Test ..."
 echo "Starting schema creation..."
 aws appsync start-schema-creation --api-id $API_ID --definition "$SCHEMA_BASE64"
 
