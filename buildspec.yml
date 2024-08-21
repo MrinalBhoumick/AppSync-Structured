@@ -19,6 +19,11 @@ phases:
       - git clone https://github.com/MrinalBhoumick/AppSync-Structured.git /codebuild/repo
       - cd /codebuild/repo
 
+      # Test log messages
+      - echo "This is a test log message containing ERROR to test filter pattern." >> /codebuild/repo/build.log
+      - echo "Another log message for good measure." >> /codebuild/repo/build.log
+      - echo "Custom log message to be checked by FilterPattern." >> /codebuild/repo/build.log
+
       - echo Creating AppSync API if it does not exist...
       - bash scripts/create-api.sh || { echo "API creation failed"; touch rollback.flag; exit 1; }
 
