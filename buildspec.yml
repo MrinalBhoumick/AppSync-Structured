@@ -3,7 +3,7 @@ version: 0.2
 phases:
   pre_build:
     commands:
-      - echo "ERROR"``
+      # - echo "ERROR"``
   #     - echo Pre-build phase...
   #     - mkdir -p artifacts
   #     - echo Checking for existing artifacts in S3...
