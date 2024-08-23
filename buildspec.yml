@@ -3,69 +3,70 @@ version: 0.2
 phases:
   pre_build:
     commands:
-      - echo Pre-build phase...
-      - mkdir -p artifacts
-      - echo Checking for existing artifacts in S3...
-      - |
-        ARTIFACTS=$(aws s3 ls s3://$S3_BUCKET/ --recursive | grep 'last-successful-build.tar.gz' || echo "No previous build found in S3")
-        if [ "$ARTIFACTS" != "No previous build found in S3" ]; then
-          echo "Previous build artifact found. Downloading..."
-          aws s3 cp s3://$S3_BUCKET/last-successful-build.tar.gz artifacts/last-successful-build.tar.gz
-        fi
+      - echo "ERROR"``
+  #     - echo Pre-build phase...
+  #     - mkdir -p artifacts
+  #     - echo Checking for existing artifacts in S3...
+  #     - |
+  #       ARTIFACTS=$(aws s3 ls s3://$S3_BUCKET/ --recursive | grep 'last-successful-build.tar.gz' || echo "No previous build found in S3")
+  #       if [ "$ARTIFACTS" != "No previous build found in S3" ]; then
+  #         echo "Previous build artifact found. Downloading..."
+  #         aws s3 cp s3://$S3_BUCKET/last-successful-build.tar.gz artifacts/last-successful-build.tar.gz
+  #       fi
 
-  build:
-    commands:
-      - echo Cloning the repository...
-      - git clone https://github.com/MrinalBhoumick/AppSync-Structured.git /codebuild/repo
-      - cd /codebuild/repo
+  # build:
+  #   commands:
+  #     - echo Cloning the repository...
+  #     - git clone https://github.com/MrinalBhoumick/AppSync-Structured.git /codebuild/repo
+  #     - cd /codebuild/repo
 
-      # Test log messages
-      - echo "This is a test log message containing ERROR to test filter pattern." >> /codebuild/repo/build.log
-      - echo "Another log message for good measure." >> /codebuild/repo/build.log
-      - echo "Custom log message to be checked by FilterPattern." >> /codebuild/repo/build.log
+  #     # Test log messages
+  #     - echo "This is a test log message containing ERROR to test filter pattern." >> /codebuild/repo/build.log
+  #     - echo "Another log message for good measure." >> /codebuild/repo/build.log
+  #     - echo "Custom log message to be checked by FilterPattern." >> /codebuild/repo/build.log
 
-      - echo Creating AppSync API if it does not exist...
-      - bash scripts/create-api.sh || { echo "API creation failed"; touch rollback.flag; exit 1; }
+  #     - echo Creating AppSync API if it does not exist...
+  #     - bash scripts/create-api.sh || { echo "API creation failed"; touch rollback.flag; exit 1; }
 
-      - echo Updating schema...
-      - bash scripts/update-schema.sh || { echo "Schema update failed"; touch rollback.flag; exit 1; }
+  #     - echo Updating schema...
+  #     - bash scripts/update-schema.sh || { echo "Schema update failed"; touch rollback.flag; exit 1; }
 
-      - echo Creating or updating the data source...
-      - bash scripts/create-update-data-source.sh || { echo "Data source update failed"; touch rollback.flag; exit 1; }
+  #     - echo Creating or updating the data source...
+  #     - bash scripts/create-update-data-source.sh || { echo "Data source update failed"; touch rollback.flag; exit 1; }
 
-      - echo Updating mapping templates...
-      - bash scripts/update-mapping-template.sh || { echo "Mapping update failed"; touch rollback.flag; exit 1; }
+  #     - echo Updating mapping templates...
+  #     - bash scripts/update-mapping-template.sh || { echo "Mapping update failed"; touch rollback.flag; exit 1; }
 
-      - echo Updating Lambda authorizer...
-      - bash scripts/update-lambda-authorizer.sh || { echo "Lambda authorizer update failed"; touch rollback.flag; exit 1; }
+  #     - echo Updating Lambda authorizer...
+  #     - bash scripts/update-lambda-authorizer.sh || { echo "Lambda authorizer update failed"; touch rollback.flag; exit 1; }
 
-  post_build:
-    commands:
-      - echo Build phase completed. Checking for rollback flag...
-      - |
-        if [ -f rollback.flag ]; then
-          echo "Build failed. Performing rollback..."
-          # List all files in the S3 bucket
-          ARTIFACTS=$(aws s3 ls s3://$S3_BUCKET/ --recursive | grep '.tar.gz' || echo "No artifacts found in S3")
-          if [ "$ARTIFACTS" != "No artifacts found in S3" ]; then
-            # Download the latest artifact from S3
-            LATEST_ARTIFACT=$(echo "$ARTIFACTS" | sort | tail -n 1 | awk '{print $4}')
-            echo "Found previous successful build artifact: $LATEST_ARTIFACT. Running rollback script..."
-            aws s3 cp s3://$S3_BUCKET/$LATEST_ARTIFACT artifacts/latest-build.tar.gz
-            chmod +x scripts/rollback.sh
-            bash scripts/rollback.sh || { echo "Rollback failed"; exit 1; }
-          else
-            echo "No previous build artifact found in S3. Cannot perform rollback."
-            exit 1
-          fi
-        else
-          echo "Build succeeded. No rollback needed."
-          echo Packaging the repository...
-          mkdir -p artifacts
-          tar --exclude='./artifacts' -czf artifacts/last-successful-build.tar.gz .
-          echo Uploading package to S3...
-          aws s3 cp artifacts/last-successful-build.tar.gz s3://$S3_BUCKET/last-successful-build.tar.gz || { echo "Upload to S3 failed"; exit 1; }
-        fi
+  # post_build:
+  #   commands:
+  #     - echo Build phase completed. Checking for rollback flag...
+  #     - |
+  #       if [ -f rollback.flag ]; then
+  #         echo "Build failed. Performing rollback..."
+  #         # List all files in the S3 bucket
+  #         ARTIFACTS=$(aws s3 ls s3://$S3_BUCKET/ --recursive | grep '.tar.gz' || echo "No artifacts found in S3")
+  #         if [ "$ARTIFACTS" != "No artifacts found in S3" ]; then
+  #           # Download the latest artifact from S3
+  #           LATEST_ARTIFACT=$(echo "$ARTIFACTS" | sort | tail -n 1 | awk '{print $4}')
+  #           echo "Found previous successful build artifact: $LATEST_ARTIFACT. Running rollback script..."
+  #           aws s3 cp s3://$S3_BUCKET/$LATEST_ARTIFACT artifacts/latest-build.tar.gz
+  #           chmod +x scripts/rollback.sh
+  #           bash scripts/rollback.sh || { echo "Rollback failed"; exit 1; }
+  #         else
+  #           echo "No previous build artifact found in S3. Cannot perform rollback."
+  #           exit 1
+  #         fi
+  #       else
+  #         echo "Build succeeded. No rollback needed."
+  #         echo Packaging the repository...
+  #         mkdir -p artifacts
+  #         tar --exclude='./artifacts' -czf artifacts/last-successful-build.tar.gz .
+  #         echo Uploading package to S3...
+  #         aws s3 cp artifacts/last-successful-build.tar.gz s3://$S3_BUCKET/last-successful-build.tar.gz || { echo "Upload to S3 failed"; exit 1; }
+  #       fi
 
 artifacts:
   files:
